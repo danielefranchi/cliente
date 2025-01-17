@@ -4,6 +4,7 @@ import { ClientCard } from '@/components/ClientCard';
 import { RatingDialog } from '@/components/RatingDialog';
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const Index = () => {
   const [showRatingDialog, setShowRatingDialog] = useState(false);
