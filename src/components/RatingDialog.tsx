@@ -24,6 +24,18 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false }: Ratin
     "Conferma"
   ];
 
+  const handleSubmit = () => {
+    // Here you would save to the database
+    const clientData = {
+      name,
+      responded,
+      paid,
+      timestamp: new Date().toISOString()
+    };
+    console.log('Saving to database:', clientData);
+    onOpenChange(false);
+  };
+
   const renderStepContent = () => {
     switch (step) {
       case 0:
@@ -169,7 +181,7 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false }: Ratin
           {step === 3 ? (
             <Button
               disabled={!canProceed()}
-              onClick={() => onOpenChange(false)}
+              onClick={handleSubmit}
               className="bg-black text-white hover:bg-white hover:text-black border-2 border-black transition-colors"
             >
               Pubblica

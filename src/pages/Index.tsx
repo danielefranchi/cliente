@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { ClientCard } from '@/components/ClientCard';
 import { RatingDialog } from '@/components/RatingDialog';
 import { Separator } from "@/components/ui/separator";
 
 const Index = () => {
-  const [isSearching, setIsSearching] = useState(false);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [noResults, setNoResults] = useState(false);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-    setIsSearching(e.target.value.length > 0);
+    const value = e.target.value;
+    setSearchQuery(value);
+    setIsSearching(value.length > 0);
+    // Simulate search - in real app this would query the database
+    setNoResults(value.length > 0);
   };
 
   return (
@@ -24,7 +27,7 @@ const Index = () => {
           alt="Logo"
           className="h-12 mx-auto mb-4"
         />
-        <h1 className="text-xl font-medium mb-2">
+        <h1 className="text-[1.17rem] font-medium mb-2">
           Scopri se un cliente risponde al tuo preventivo
         </h1>
         <p className="text-gray-600">e se paga davvero.</p>
@@ -32,29 +35,25 @@ const Index = () => {
 
       {/* Search Bar */}
       <div className="max-w-2xl mx-auto mb-12">
-        <div className="flex gap-2">
-          <Input
-            className="h-12"
-            placeholder="Cerca nome azienda, progetto o cliente"
-            value={searchQuery}
-            onChange={handleSearch}
-          />
-          <Button className="h-12 px-8 bg-black hover:bg-white hover:text-black border-2 border-black transition-colors">
-            Cerca
-          </Button>
-        </div>
+        <Input
+          className="h-12"
+          placeholder="Cerca nome azienda, progetto o cliente"
+          value={searchQuery}
+          onChange={handleSearch}
+        />
       </div>
 
-      <Separator className="my-12" />
+      <Separator className="my-16" />
 
-      {!isSearching && (
-        <div className="max-w-6xl mx-auto">
+      {!isSearching ? (
+        <div className="max-w-[580px] mx-auto">
           <div className="grid md:grid-cols-2 gap-8">
             {/* Bad Clients */}
             <div>
               <h2 className="text-xl font-semibold mb-8 flex items-center justify-center gap-2">
+                <span>🚨</span>
                 <span>Evitali</span>
-                <span>🙅‍♂️</span>
+                <span>🚨</span>
               </h2>
               <div className="space-y-8">
                 <ClientCard
@@ -86,12 +85,26 @@ const Index = () => {
             </div>
           </div>
         </div>
+      ) : (
+        <div className="text-center">
+          {noResults && (
+            <div className="space-y-4">
+              <p>Nessun cliente trovato con questo nome.</p>
+              <button
+                onClick={() => setShowRatingDialog(true)}
+                className="text-blue-600 hover:underline"
+              >
+                Aggiungi nuovo cliente
+              </button>
+            </div>
+          )}
+        </div>
       )}
 
       <RatingDialog 
         open={showRatingDialog} 
         onOpenChange={setShowRatingDialog}
-        skipNameStep={true}
+        skipNameStep={!noResults}
       />
     </div>
   );
