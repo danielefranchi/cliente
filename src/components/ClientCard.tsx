@@ -30,7 +30,7 @@ export const ClientCard = ({ name, ratings, responseRate, paymentRate, onRate }:
         {/* Rating Bars */}
         <div className="space-y-6">
           <div>
-            <p className="text-center mb-1">Risponde ai preventivi?</p>
+            <p className="text-center mb-0.5">Risponde ai preventivi?</p>
             <div className="flex items-center gap-2">
               <span className="text-xl">👻</span>
               <div className={cn(
@@ -41,8 +41,8 @@ export const ClientCard = ({ name, ratings, responseRate, paymentRate, onRate }:
             </div>
           </div>
 
-          <div>
-            <p className="text-center mb-1">Paga?</p>
+          <div className="mt-8">
+            <p className="text-center mb-0.5">Paga?</p>
             <div className="flex items-center gap-2">
               <span className="text-xl">😈</span>
               <div className={cn(

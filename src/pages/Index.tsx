@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { ClientCard } from '@/components/ClientCard';
 import { RatingDialog } from '@/components/RatingDialog';
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const [showRatingDialog, setShowRatingDialog] = useState(false);
@@ -19,7 +20,10 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-8">
+    <div className={cn(
+      "min-h-screen bg-gray-50 px-4 py-8",
+      showRatingDialog && "blur-sm"
+    )}>
       {/* Logo */}
       <div className="text-center mb-8">
         <img 
@@ -46,7 +50,7 @@ const Index = () => {
       <Separator className="my-16" />
 
       {!isSearching ? (
-        <div className="max-w-[580px] mx-auto">
+        <div className="max-w-[560px] mx-auto">
           <div className="grid md:grid-cols-2 gap-8">
             {/* Bad Clients */}
             <div>
@@ -90,12 +94,12 @@ const Index = () => {
           {noResults && (
             <div className="space-y-4">
               <p>Nessun cliente trovato con questo nome.</p>
-              <button
+              <Button
                 onClick={() => setShowRatingDialog(true)}
-                className="text-blue-600 hover:underline"
+                className="rounded-full px-6 bg-black hover:bg-white hover:text-black border-2 border-black transition-colors"
               >
                 Aggiungi nuovo cliente
-              </button>
+              </Button>
             </div>
           )}
         </div>
