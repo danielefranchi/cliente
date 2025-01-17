@@ -12,7 +12,7 @@ interface ClientCardProps {
 
 export const ClientCard = ({ name, ratings, responseRate, paymentRate, onRate }: ClientCardProps) => {
   return (
-    <div className="relative bg-white rounded-lg p-6 shadow-md mb-6">
+    <div className="relative bg-white rounded-lg p-6 shadow-md mb-6 w-[300px]">
       {/* Profile Picture */}
       <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
         <div className="w-16 h-16 bg-[#F0F0F0] rounded-full flex items-center justify-center">
@@ -28,9 +28,9 @@ export const ClientCard = ({ name, ratings, responseRate, paymentRate, onRate }:
         </div>
 
         {/* Rating Bars */}
-        <div className="space-y-6">
+        <div className="space-y-4">
           <div>
-            <p className="text-center mb-0.5">Risponde ai preventivi?</p>
+            <p className="text-center mb-0">Risponde ai preventivi?</p>
             <div className="flex items-center gap-2">
               <span className="text-xl">👻</span>
               <div className={cn(
@@ -42,8 +42,8 @@ export const ClientCard = ({ name, ratings, responseRate, paymentRate, onRate }:
           </div>
 
           <div className="mt-8">
-            <p className="text-center mb-0.5">Paga?</p>
-            <div className="flex items-center gap-2">
+            <p className="text-center mb-0">Paga?</p>
+            <div className="flex items-center gap-2 mt-8">
               <span className="text-xl">😈</span>
               <div className={cn(
                 "flex-1 h-2 rounded-full",

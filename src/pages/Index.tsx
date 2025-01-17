@@ -21,10 +21,7 @@ const Index = () => {
   };
 
   return (
-    <div className={cn(
-      "min-h-screen bg-gray-50 px-4 py-8",
-      showRatingDialog && "blur-sm"
-    )}>
+    <div className="min-h-screen bg-gray-50 px-4 py-8">
       {/* Logo */}
       <div className="text-center mb-8">
         <img 
@@ -51,7 +48,7 @@ const Index = () => {
       <Separator className="my-16" />
 
       {!isSearching ? (
-        <div className="max-w-[560px] mx-auto">
+        <div className="max-w-[600px] mx-auto">
           <div className="grid md:grid-cols-2 gap-8">
             {/* Bad Clients */}
             <div>
