@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { RatingSteps } from './RatingSteps';
 import { saveRating } from '@/utils/ratingUtils';
+import { cn } from "@/lib/utils";
 
 interface RatingDialogProps {
   open: boolean;
