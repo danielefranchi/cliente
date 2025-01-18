@@ -10,7 +10,6 @@ import { supabase } from "@/integrations/supabase/client";
 const Index = () => {
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
   const [selectedClientName, setSelectedClientName] = useState('');
 
   const { data: clients = [], refetch } = useQuery({
@@ -33,7 +32,6 @@ const Index = () => {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-    setIsSearching(value.length > 0);
   };
 
   const handleRatingSuccess = async () => {
@@ -54,21 +52,48 @@ const Index = () => {
     .filter(client => !client.responded || client.paid === 'no')
     .slice(0, 20);
 
-  const renderSearchBar = () => (
-    <div className="max-w-2xl mx-auto mb-12">
-      <Input
-        className="h-12"
-        placeholder="Cerca nome azienda, progetto o cliente"
-        value={searchQuery}
-        onChange={handleSearch}
-      />
-    </div>
-  );
+  const renderSearchResults = () => {
+    if (searchQuery === '') return null;
+
+    if (filteredClients.length === 0) {
+      return (
+        <div className="text-center">
+          <div className="space-y-4">
+            <p>Nessun cliente trovato con questo nome.</p>
+            <Button
+              onClick={() => handleRate(searchQuery)}
+              className="rounded-full px-6 bg-black hover:bg-white hover:text-black border-2 border-black transition-colors"
+            >
+              Aggiungi nuovo cliente
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-24">
+        {filteredClients.map(client => (
+          <ClientCard
+            key={client.id}
+            name={client.name}
+            ratings={1}
+            responseRate={client.responded ? 100 : 0}
+            paymentRate={client.paid === 'yes' ? 100 : client.paid === 'late' ? 50 : 0}
+            onRate={() => handleRate(client.name)}
+            showPayment={client.responded}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  // ... keep existing code (Logo section)
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="px-4 py-8">
-        {/* Logo */}
+        {/* Logo section */}
         <div className="text-center mb-8">
           <img 
             src="/lovable-uploads/0ce1c75d-20f4-4971-9813-501d311e4180.png" 
@@ -81,11 +106,21 @@ const Index = () => {
           <p className="text-gray-600">e se paga davvero.</p>
         </div>
 
-        {renderSearchBar()}
+        {/* Search Bar */}
+        <div className="max-w-2xl mx-auto mb-12">
+          <Input
+            className="h-12"
+            placeholder="Cerca nome azienda, progetto o cliente"
+            value={searchQuery}
+            onChange={handleSearch}
+          />
+        </div>
 
         <Separator className="my-16" />
 
-        {!isSearching ? (
+        {searchQuery ? (
+          renderSearchResults()
+        ) : (
           <div className="max-w-[1200px] mx-auto">
             <div className="grid md:grid-cols-2 gap-16">
               {/* Bad Clients */}
@@ -135,21 +170,14 @@ const Index = () => {
 
             {(goodClients.length >= 20 || badClients.length >= 20) && (
               <div className="mt-16">
-                {renderSearchBar()}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="text-center">
-            {filteredClients.length === 0 && (
-              <div className="space-y-4">
-                <p>Nessun cliente trovato con questo nome.</p>
-                <Button
-                  onClick={() => handleRate(searchQuery)}
-                  className="rounded-full px-6 bg-black hover:bg-white hover:text-black border-2 border-black transition-colors"
-                >
-                  Aggiungi nuovo cliente
-                </Button>
+                <div className="max-w-2xl mx-auto">
+                  <Input
+                    className="h-12"
+                    placeholder="Cerca nome azienda, progetto o cliente"
+                    value={searchQuery}
+                    onChange={handleSearch}
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -168,7 +196,7 @@ const Index = () => {
       <RatingDialog 
         open={showRatingDialog} 
         onOpenChange={setShowRatingDialog}
-        skipNameStep={!isSearching}
+        skipNameStep={searchQuery !== ''}
         onSuccess={handleRatingSuccess}
         initialClientName={selectedClientName}
       />
