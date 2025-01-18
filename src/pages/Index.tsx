@@ -90,7 +90,7 @@ const Index = () => {
                   <span>Evitali</span>
                   <span>🚨</span>
                 </h2>
-                <div className="space-y-8">
+                <div className="space-y-16">
                   {badClients.map(client => (
                     <ClientCard
                       key={client.id}
@@ -112,7 +112,7 @@ const Index = () => {
                   <span>Migliori clienti</span>
                   <span>✨</span>
                 </h2>
-                <div className="space-y-8">
+                <div className="space-y-16">
                   {goodClients.map(client => (
                     <ClientCard
                       key={client.id}
