@@ -10,9 +10,10 @@ interface RatingDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   skipNameStep?: boolean;
+  onSuccess?: () => void;
 }
 
-export const RatingDialog = ({ open, onOpenChange, skipNameStep = false }: RatingDialogProps) => {
+export const RatingDialog = ({ open, onOpenChange, skipNameStep = false, onSuccess }: RatingDialogProps) => {
   const [step, setStep] = useState(skipNameStep ? 1 : 0);
   const [name, setName] = useState('');
   const [responded, setResponded] = useState<boolean | null>(null);
@@ -53,6 +54,7 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false }: Ratin
       setConfirmed(false);
       setStep(0);
       
+      onSuccess?.();
       onOpenChange(false);
     } catch (error) {
       console.error('Error saving client:', error);
@@ -86,10 +88,13 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false }: Ratin
             <p className="text-sm text-gray-500">(entro 7 giorni)</p>
             <div className="flex justify-center gap-8">
               <Button
-                onClick={() => setResponded(false)}
+                onClick={() => {
+                  setResponded(false);
+                  setStep(3); // Skip to confirmation if no response
+                }}
                 className={cn(
-                  "flex-col h-auto py-4 px-8",
-                  responded === false ? "bg-red-100" : "bg-white"
+                  "flex-col h-auto py-4 px-8 border border-gray-200 text-black",
+                  responded === false ? "bg-red-100" : "bg-white hover:bg-red-50"
                 )}
               >
                 <span className="text-2xl mb-2">👻</span>
@@ -98,8 +103,8 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false }: Ratin
               <Button
                 onClick={() => setResponded(true)}
                 className={cn(
-                  "flex-col h-auto py-4 px-8",
-                  responded === true ? "bg-green-100" : "bg-white"
+                  "flex-col h-auto py-4 px-8 border border-gray-200 text-black",
+                  responded === true ? "bg-green-100" : "bg-white hover:bg-green-50"
                 )}
               >
                 <span className="text-2xl mb-2">🥳</span>
@@ -116,8 +121,8 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false }: Ratin
               <Button
                 onClick={() => setPaid('no')}
                 className={cn(
-                  "flex-col h-auto py-4 px-8",
-                  paid === 'no' ? "bg-red-100" : "bg-white"
+                  "flex-col h-auto py-4 px-8 border border-gray-200 text-black",
+                  paid === 'no' ? "bg-red-100" : "bg-white hover:bg-red-50"
                 )}
               >
                 <span className="text-2xl mb-2">😈</span>
@@ -126,8 +131,8 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false }: Ratin
               <Button
                 onClick={() => setPaid('late')}
                 className={cn(
-                  "flex-col h-auto py-4 px-8",
-                  paid === 'late' ? "bg-yellow-100" : "bg-white"
+                  "flex-col h-auto py-4 px-8 border border-gray-200 text-black",
+                  paid === 'late' ? "bg-yellow-100" : "bg-white hover:bg-yellow-50"
                 )}
               >
                 <span className="text-2xl mb-2">🐌</span>
@@ -136,8 +141,8 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false }: Ratin
               <Button
                 onClick={() => setPaid('yes')}
                 className={cn(
-                  "flex-col h-auto py-4 px-8",
-                  paid === 'yes' ? "bg-green-100" : "bg-white"
+                  "flex-col h-auto py-4 px-8 border border-gray-200 text-black",
+                  paid === 'yes' ? "bg-green-100" : "bg-white hover:bg-green-50"
                 )}
               >
                 <span className="text-2xl mb-2">🤑</span>

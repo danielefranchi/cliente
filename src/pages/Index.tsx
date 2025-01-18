@@ -5,20 +5,46 @@ import { RatingDialog } from '@/components/RatingDialog';
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  const [noResults, setNoResults] = useState(false);
+
+  // Fetch clients
+  const { data: clients = [], refetch } = useQuery({
+    queryKey: ['clients'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('clients')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const filteredClients = clients.filter(client => 
+    client.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
     setIsSearching(value.length > 0);
-    // Simulate search - in real app this would query the database
-    setNoResults(value.length > 0);
   };
+
+  // Split clients into good and bad based on response and payment
+  const goodClients = filteredClients.filter(client => 
+    client.responded && client.paid === 'yes'
+  );
+
+  const badClients = filteredClients.filter(client => 
+    !client.responded || client.paid === 'no'
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-8">
@@ -58,13 +84,16 @@ const Index = () => {
                 <span>🚨</span>
               </h2>
               <div className="space-y-8">
-                <ClientCard
-                  name="Cliente Cattivo"
-                  ratings={2}
-                  responseRate={0}
-                  paymentRate={0}
-                  onRate={() => setShowRatingDialog(true)}
-                />
+                {badClients.map(client => (
+                  <ClientCard
+                    key={client.id}
+                    name={client.name}
+                    ratings={1}
+                    responseRate={client.responded ? 100 : 0}
+                    paymentRate={client.paid === 'yes' ? 100 : client.paid === 'late' ? 50 : 0}
+                    onRate={() => setShowRatingDialog(true)}
+                  />
+                ))}
               </div>
             </div>
 
@@ -76,20 +105,23 @@ const Index = () => {
                 <span>✨</span>
               </h2>
               <div className="space-y-8">
-                <ClientCard
-                  name="Cliente Buono"
-                  ratings={2}
-                  responseRate={80}
-                  paymentRate={90}
-                  onRate={() => setShowRatingDialog(true)}
-                />
+                {goodClients.map(client => (
+                  <ClientCard
+                    key={client.id}
+                    name={client.name}
+                    ratings={1}
+                    responseRate={100}
+                    paymentRate={100}
+                    onRate={() => setShowRatingDialog(true)}
+                  />
+                ))}
               </div>
             </div>
           </div>
         </div>
       ) : (
         <div className="text-center">
-          {noResults && (
+          {filteredClients.length === 0 && (
             <div className="space-y-4">
               <p>Nessun cliente trovato con questo nome.</p>
               <Button
@@ -106,7 +138,8 @@ const Index = () => {
       <RatingDialog 
         open={showRatingDialog} 
         onOpenChange={setShowRatingDialog}
-        skipNameStep={!noResults}
+        skipNameStep={!isSearching}
+        onSuccess={() => refetch()}
       />
     </div>
   );
