@@ -9,6 +9,7 @@ interface ClientCardProps {
   paymentRate: number;
   onRate: () => void;
   showPayment?: boolean;
+  imageUrl?: string;
 }
 
 export const ClientCard = ({ 
@@ -17,14 +18,19 @@ export const ClientCard = ({
   responseRate, 
   paymentRate, 
   onRate,
-  showPayment = true 
+  showPayment = true,
+  imageUrl
 }: ClientCardProps) => {
   return (
     <div className="relative bg-white rounded-lg p-6 pb-12 shadow-md w-[300px] mx-auto min-h-[240px]">
       {/* Profile Picture */}
       <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
-        <div className="w-16 h-16 bg-[#F0F0F0] rounded-full flex items-center justify-center">
-          <span className="text-2xl">🏢</span>
+        <div className="w-16 h-16 bg-[#F0F0F0] rounded-full flex items-center justify-center overflow-hidden">
+          {imageUrl ? (
+            <img src={imageUrl} alt={name} className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-2xl">🏢</span>
+          )}
         </div>
       </div>
 

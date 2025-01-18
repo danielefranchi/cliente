@@ -84,6 +84,7 @@ const Index = () => {
             paymentRate={client.paid === 'yes' ? 100 : client.paid === 'late' ? 50 : 0}
             onRate={() => handleRate(client.name)}
             showPayment={client.responded}
+            imageUrl={client.image_url}
           />
         ))}
       </div>
@@ -141,6 +142,7 @@ const Index = () => {
                       paymentRate={client.paid === 'yes' ? 100 : client.paid === 'late' ? 50 : 0}
                       onRate={() => handleRate(client.name)}
                       showPayment={client.responded}
+                      imageUrl={client.image_url}
                     />
                   ))}
                 </div>
@@ -163,6 +165,7 @@ const Index = () => {
                       paymentRate={100}
                       onRate={() => handleRate(client.name)}
                       showPayment={true}
+                      imageUrl={client.image_url}
                     />
                   ))}
                 </div>
@@ -193,7 +196,7 @@ const Index = () => {
               Disclaimer: Le opinioni e le recensioni pubblicate su questo sito riflettono esclusivamente l'esperienza e il punto di vista degli utenti. Il sito non garantisce l'accuratezza, la completezza o la veridicità delle recensioni e declina ogni responsabilità per eventuali danni o controversie derivanti dall'uso delle informazioni pubblicate. Ogni contenuto inappropriato, diffamatorio o non conforme alle normative vigenti potrà essere segnalato e rimosso. Invitiamo gli utenti a utilizzare la piattaforma in modo responsabile e a fornire recensioni veritiere basate su esperienze personali.
             </p>
             <div className="text-center">
-              <Link to="/terms" className="text-white hover:underline">
+              <Link to="/terms" className="text-white hover:underline underline">
                 Termini e Condizioni
               </Link>
             </div>

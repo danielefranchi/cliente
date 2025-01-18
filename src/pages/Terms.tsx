@@ -10,6 +10,15 @@ const Terms = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-12">
+        {/* Logo section */}
+        <div className="text-center mb-8">
+          <img 
+            src="/lovable-uploads/0ce1c75d-20f4-4971-9813-501d311e4180.png" 
+            alt="Logo"
+            className="h-12 mx-auto mb-4"
+          />
+        </div>
+
         <h1 className="text-3xl font-bold mb-8">Termini e Condizioni d'Uso</h1>
         
         <div className="prose prose-gray max-w-none">
