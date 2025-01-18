@@ -141,8 +141,8 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false, onSucce
                   setStep(3); // Skip to confirmation if no response
                 }}
                 className={cn(
-                  "flex-col h-auto py-4 px-8 border border-gray-200 text-black",
-                  responded === false ? "bg-red-100 hover:bg-red-100 hover:text-white" : "bg-white hover:bg-red-50"
+                  "flex-col h-auto py-4 px-8 border border-gray-200 text-black transition-colors",
+                  responded === false ? "bg-red-100 hover:bg-gray-100 hover:text-black" : "bg-white hover:bg-red-50"
                 )}
               >
                 <span className="text-2xl mb-2">👻</span>
@@ -151,8 +151,8 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false, onSucce
               <Button
                 onClick={() => setResponded(true)}
                 className={cn(
-                  "flex-col h-auto py-4 px-8 border border-gray-200 text-black",
-                  responded === true ? "bg-green-100 hover:bg-green-100 hover:text-white" : "bg-white hover:bg-green-50"
+                  "flex-col h-auto py-4 px-8 border border-gray-200 text-black transition-colors",
+                  responded === true ? "bg-green-100 hover:bg-gray-100 hover:text-black" : "bg-white hover:bg-green-50"
                 )}
               >
                 <span className="text-2xl mb-2">🥳</span>
@@ -169,8 +169,8 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false, onSucce
               <Button
                 onClick={() => setPaid('no')}
                 className={cn(
-                  "flex-col h-auto py-4 px-8 border border-gray-200 text-black",
-                  paid === 'no' ? "bg-red-100 hover:bg-red-100 hover:text-white" : "bg-white hover:bg-red-50"
+                  "flex-col h-auto py-4 px-8 border border-gray-200 text-black transition-colors",
+                  paid === 'no' ? "bg-red-100 hover:bg-gray-100 hover:text-black" : "bg-white hover:bg-red-50"
                 )}
               >
                 <span className="text-2xl mb-2">😈</span>
@@ -179,8 +179,8 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false, onSucce
               <Button
                 onClick={() => setPaid('late')}
                 className={cn(
-                  "flex-col h-auto py-4 px-8 border border-gray-200 text-black",
-                  paid === 'late' ? "bg-yellow-100 hover:bg-yellow-100 hover:text-white" : "bg-white hover:bg-yellow-50"
+                  "flex-col h-auto py-4 px-8 border border-gray-200 text-black transition-colors",
+                  paid === 'late' ? "bg-yellow-100 hover:bg-gray-100 hover:text-black" : "bg-white hover:bg-yellow-50"
                 )}
               >
                 <span className="text-2xl mb-2">🐌</span>
@@ -189,8 +189,8 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false, onSucce
               <Button
                 onClick={() => setPaid('yes')}
                 className={cn(
-                  "flex-col h-auto py-4 px-8 border border-gray-200 text-black",
-                  paid === 'yes' ? "bg-green-100 hover:bg-green-100 hover:text-white" : "bg-white hover:bg-green-50"
+                  "flex-col h-auto py-4 px-8 border border-gray-200 text-black transition-colors",
+                  paid === 'yes' ? "bg-green-100 hover:bg-gray-100 hover:text-black" : "bg-white hover:bg-green-50"
                 )}
               >
                 <span className="text-2xl mb-2">🤑</span>

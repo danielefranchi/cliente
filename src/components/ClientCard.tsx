@@ -12,7 +12,7 @@ interface ClientCardProps {
 
 export const ClientCard = ({ name, ratings, responseRate, paymentRate, onRate }: ClientCardProps) => {
   return (
-    <div className="relative bg-white rounded-lg p-6 pb-12 shadow-md mb-12 w-[300px]">
+    <div className="relative bg-white rounded-lg p-6 pb-12 shadow-md mb-8 w-[300px]">
       {/* Profile Picture */}
       <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
         <div className="w-16 h-16 bg-[#F0F0F0] rounded-full flex items-center justify-center">
