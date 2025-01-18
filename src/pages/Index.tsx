@@ -17,7 +17,6 @@ const Index = () => {
   const { data: clientsData = [], refetch } = useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
-      // Fetch clients with their rating attempts
       const { data: clients, error } = await supabase
         .from('clients')
         .select(`
@@ -28,7 +27,6 @@ const Index = () => {
       
       if (error) throw error;
 
-      // Process clients to include rating statistics
       return clients.map(client => ({
         ...client,
         ratings: client.rating_attempts?.length || 0,
@@ -71,12 +69,14 @@ const Index = () => {
       return (
         <div className="text-center">
           <div className="space-y-4">
-            <p>Nessun cliente trovato con questo nome.</p>
+            <p className="text-lg">{searchQuery} non è valutato.</p>
+            <p>Bisogna aggiungerlo!</p>
+            <p className="text-gray-600">Non dovrai iscriverti o inserire i tuoi dati.</p>
             <Button
               onClick={() => handleRate(searchQuery)}
               className="rounded-full px-6 bg-black hover:bg-white hover:text-black border-2 border-black transition-colors"
             >
-              Aggiungi nuovo cliente
+              Aggiungi {searchQuery}
             </Button>
           </div>
         </div>
@@ -111,10 +111,10 @@ const Index = () => {
             alt="Logo"
             className="h-12 mx-auto mb-4"
           />
-          <h1 className="text-[1.17rem] font-medium mb-2">
+          <h1 className="text-3xl font-medium mb-2">
             Scopri se un cliente risponde al tuo preventivo
           </h1>
-          <p className="text-gray-600">e se paga davvero.</p>
+          <p className="text-xl text-gray-600">e se paga davvero.</p>
         </div>
 
         {/* Search Bar */}
@@ -133,6 +133,7 @@ const Index = () => {
         {searchQuery ? (
           renderSearchResults()
         ) : (
+          // ... keep existing code (grid layout for good/bad clients)
           <div className="max-w-[1200px] mx-auto">
             <div className="grid md:grid-cols-2 gap-16">
               {/* Bad Clients */}

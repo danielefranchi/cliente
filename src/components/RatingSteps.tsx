@@ -45,8 +45,9 @@ export const RatingSteps = ({
     case 1:
       return (
         <div className="text-center space-y-6">
-          <h2 className="text-xl font-semibold">Ha risposto al tuo preventivo?</h2>
-          <p className="text-sm text-gray-500">(entro 7 giorni)</p>
+          <h2 className="text-xl font-semibold">
+            Ha risposto al tuo preventivo? <span className="text-sm text-gray-500">(entro 7 giorni)</span>
+          </h2>
           <div className="flex justify-center gap-8">
             <Button
               onClick={() => {
