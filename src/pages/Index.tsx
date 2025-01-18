@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import { ClientCard } from '@/components/ClientCard';
 import { RatingDialog } from '@/components/RatingDialog';
 import { Separator } from "@/components/ui/separator";
@@ -88,8 +90,6 @@ const Index = () => {
     );
   };
 
-  // ... keep existing code (Logo section)
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="px-4 py-8">
@@ -107,9 +107,10 @@ const Index = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="max-w-2xl mx-auto mb-12">
+        <div className="max-w-2xl mx-auto mb-12 relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           <Input
-            className="h-12"
+            className="h-12 pl-10"
             placeholder="Cerca nome azienda, progetto o cliente"
             value={searchQuery}
             onChange={handleSearch}
@@ -187,9 +188,16 @@ const Index = () => {
       {/* Footer */}
       <footer className="bg-black text-white py-8 px-4 mt-16">
         <div className="max-w-4xl mx-auto text-sm text-gray-300">
-          <p className="leading-relaxed">
-            Disclaimer: Le opinioni e le recensioni pubblicate su questo sito riflettono esclusivamente l'esperienza e il punto di vista degli utenti. Il sito non garantisce l'accuratezza, la completezza o la veridicità delle recensioni e declina ogni responsabilità per eventuali danni o controversie derivanti dall'uso delle informazioni pubblicate. Ogni contenuto inappropriato, diffamatorio o non conforme alle normative vigenti potrà essere segnalato e rimosso. Invitiamo gli utenti a utilizzare la piattaforma in modo responsabile e a fornire recensioni veritiere basate su esperienze personali.
-          </p>
+          <div className="space-y-4">
+            <p className="leading-relaxed">
+              Disclaimer: Le opinioni e le recensioni pubblicate su questo sito riflettono esclusivamente l'esperienza e il punto di vista degli utenti. Il sito non garantisce l'accuratezza, la completezza o la veridicità delle recensioni e declina ogni responsabilità per eventuali danni o controversie derivanti dall'uso delle informazioni pubblicate. Ogni contenuto inappropriato, diffamatorio o non conforme alle normative vigenti potrà essere segnalato e rimosso. Invitiamo gli utenti a utilizzare la piattaforma in modo responsabile e a fornire recensioni veritiere basate su esperienze personali.
+            </p>
+            <div className="text-center">
+              <Link to="/terms" className="text-white hover:underline">
+                Termini e Condizioni
+              </Link>
+            </div>
+          </div>
         </div>
       </footer>
 
