@@ -4,7 +4,6 @@ import { ClientCard } from '@/components/ClientCard';
 import { RatingDialog } from '@/components/RatingDialog';
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 
@@ -42,12 +41,23 @@ const Index = () => {
   };
 
   // Split clients into good and bad based on response and payment
-  const goodClients = filteredClients.filter(client => 
-    client.responded && client.paid === 'yes'
-  );
+  const goodClients = filteredClients
+    .filter(client => client.responded && client.paid === 'yes')
+    .slice(0, 20);
 
-  const badClients = filteredClients.filter(client => 
-    !client.responded || client.paid === 'no'
+  const badClients = filteredClients
+    .filter(client => !client.responded || client.paid === 'no')
+    .slice(0, 20);
+
+  const renderSearchBar = () => (
+    <div className="max-w-2xl mx-auto mb-12">
+      <Input
+        className="h-12"
+        placeholder="Cerca nome azienda, progetto o cliente"
+        value={searchQuery}
+        onChange={handleSearch}
+      />
+    </div>
   );
 
   return (
@@ -66,20 +76,12 @@ const Index = () => {
           <p className="text-gray-600">e se paga davvero.</p>
         </div>
 
-        {/* Search Bar */}
-        <div className="max-w-2xl mx-auto mb-12">
-          <Input
-            className="h-12"
-            placeholder="Cerca nome azienda, progetto o cliente"
-            value={searchQuery}
-            onChange={handleSearch}
-          />
-        </div>
+        {renderSearchBar()}
 
         <Separator className="my-16" />
 
         {!isSearching ? (
-          <div className="max-w-[600px] mx-auto">
+          <div className="max-w-[1200px] mx-auto">
             <div className="grid md:grid-cols-2 gap-16">
               {/* Bad Clients */}
               <div>
@@ -97,6 +99,7 @@ const Index = () => {
                       responseRate={client.responded ? 100 : 0}
                       paymentRate={client.paid === 'yes' ? 100 : client.paid === 'late' ? 50 : 0}
                       onRate={() => setShowRatingDialog(true)}
+                      showPayment={client.responded}
                     />
                   ))}
                 </div>
@@ -118,11 +121,18 @@ const Index = () => {
                       responseRate={100}
                       paymentRate={100}
                       onRate={() => setShowRatingDialog(true)}
+                      showPayment={true}
                     />
                   ))}
                 </div>
               </div>
             </div>
+
+            {(goodClients.length >= 20 || badClients.length >= 20) && (
+              <div className="mt-16">
+                {renderSearchBar()}
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-center">
