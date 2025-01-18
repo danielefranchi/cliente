@@ -41,9 +41,9 @@ export const ClientCard = ({ name, ratings, responseRate, paymentRate, onRate }:
             </div>
           </div>
 
-          <div className="mt-8">
+          <div>
             <p className="text-center mb-0">Paga?</p>
-            <div className="flex items-center gap-2 mt-8">
+            <div className="flex items-center gap-2 mt-2">
               <span className="text-xl">😈</span>
               <div className={cn(
                 "flex-1 h-2 rounded-full",
@@ -59,7 +59,7 @@ export const ClientCard = ({ name, ratings, responseRate, paymentRate, onRate }:
       <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2">
         <Button 
           onClick={onRate}
-          className="rounded-full px-6 bg-black hover:bg-white hover:text-black border-2 border-black transition-colors"
+          className="rounded-full px-6 pt-6 pb-4 bg-black hover:bg-white hover:text-black border-2 border-black transition-colors"
         >
           Valuta
         </Button>

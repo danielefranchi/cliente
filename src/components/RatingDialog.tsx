@@ -3,6 +3,8 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from '@/lib/utils';
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface RatingDialogProps {
   open: boolean;
@@ -16,6 +18,7 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false }: Ratin
   const [responded, setResponded] = useState<boolean | null>(null);
   const [paid, setPaid] = useState<'yes' | 'no' | 'late' | null>(null);
   const [confirmed, setConfirmed] = useState(false);
+  const { toast } = useToast();
 
   const steps = [
     "Nome cliente",
@@ -24,16 +27,41 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false }: Ratin
     "Conferma"
   ];
 
-  const handleSubmit = () => {
-    // Here you would save to the database
-    const clientData = {
-      name,
-      responded,
-      paid,
-      timestamp: new Date().toISOString()
-    };
-    console.log('Saving to database:', clientData);
-    onOpenChange(false);
+  const handleSubmit = async () => {
+    try {
+      const { error } = await supabase
+        .from('clients')
+        .insert([
+          {
+            name,
+            responded: responded || false,
+            paid: paid || 'no'
+          }
+        ]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Cliente aggiunto con successo!",
+        description: "La valutazione è stata salvata nel database.",
+      });
+
+      // Reset form
+      setName('');
+      setResponded(null);
+      setPaid(null);
+      setConfirmed(false);
+      setStep(0);
+      
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error saving client:', error);
+      toast({
+        title: "Errore",
+        description: "Si è verificato un errore durante il salvataggio del cliente.",
+        variant: "destructive"
+      });
+    }
   };
 
   const renderStepContent = () => {

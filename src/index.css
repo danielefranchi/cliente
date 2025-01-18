@@ -76,7 +76,6 @@
 }
 
 [data-state="open"] ~ * {
-  filter: blur(4px);
-  transition: filter 0.2s ease-out;
-  pointer-events: none;
+  transition: none;
+  pointer-events: auto;
 }

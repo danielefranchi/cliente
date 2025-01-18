@@ -52,7 +52,7 @@ const Index = () => {
           <div className="grid md:grid-cols-2 gap-8">
             {/* Bad Clients */}
             <div>
-              <h2 className="text-xl font-semibold mb-8 flex items-center justify-center gap-2">
+              <h2 className="text-xl font-semibold mb-16 flex items-center justify-center gap-2">
                 <span>🚨</span>
                 <span>Evitali</span>
                 <span>🚨</span>
@@ -70,7 +70,7 @@ const Index = () => {
 
             {/* Good Clients */}
             <div>
-              <h2 className="text-xl font-semibold mb-8 flex items-center justify-center gap-2">
+              <h2 className="text-xl font-semibold mb-16 flex items-center justify-center gap-2">
                 <span>✨</span>
                 <span>Migliori clienti</span>
                 <span>✨</span>
