@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from '@/lib/utils';
@@ -12,11 +12,18 @@ interface RatingDialogProps {
   onOpenChange: (open: boolean) => void;
   skipNameStep?: boolean;
   onSuccess?: () => void;
+  initialClientName?: string;
 }
 
-export const RatingDialog = ({ open, onOpenChange, skipNameStep = false, onSuccess }: RatingDialogProps) => {
+export const RatingDialog = ({ 
+  open, 
+  onOpenChange, 
+  skipNameStep = false, 
+  onSuccess,
+  initialClientName = ''
+}: RatingDialogProps) => {
   const [step, setStep] = useState(skipNameStep ? 1 : 0);
-  const [name, setName] = useState('');
+  const [name, setName] = useState(initialClientName);
   const [responded, setResponded] = useState<boolean | null>(null);
   const [paid, setPaid] = useState<'yes' | 'no' | 'late' | null>(null);
   const [confirmed, setConfirmed] = useState(false);
@@ -25,12 +32,12 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false, onSucce
   useEffect(() => {
     if (open) {
       setStep(skipNameStep ? 1 : 0);
-      setName('');
+      setName(initialClientName);
       setResponded(null);
       setPaid(null);
       setConfirmed(false);
     }
-  }, [open, skipNameStep]);
+  }, [open, skipNameStep, initialClientName]);
 
   const steps = [
     "Nome cliente",
@@ -53,12 +60,6 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false, onSucce
       .eq('browser_fingerprint', fingerprint)
       .gte('created_at', today.toISOString());
 
-    // Check if user has already rated this client
-    const hasRatedClient = attempts?.some(attempt => attempt.client_id === clientId);
-    if (hasRatedClient) {
-      throw new Error('Hai già valutato questo cliente');
-    }
-
     // Check daily limit
     if (attempts && attempts.length >= 4) {
       throw new Error('Hai raggiunto il limite di 4 valutazioni per oggi');
@@ -69,27 +70,51 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false, onSucce
 
   const handleSubmit = async () => {
     try {
-      // First insert the client
-      const { data: clientData, error: clientError } = await supabase
+      // Check if client already exists
+      const { data: existingClients } = await supabase
         .from('clients')
-        .insert([{
-          name,
-          responded: responded || false,
-          paid: paid || 'no'
-        }])
-        .select()
-        .single();
+        .select('id, responded, paid')
+        .ilike('name', name.trim())
+        .maybeSingle();
 
-      if (clientError) throw clientError;
+      let clientId;
+      
+      if (existingClients) {
+        // Update existing client
+        const { error: updateError } = await supabase
+          .from('clients')
+          .update({
+            responded: responded || existingClients.responded,
+            paid: paid || existingClients.paid
+          })
+          .eq('id', existingClients.id);
+
+        if (updateError) throw updateError;
+        clientId = existingClients.id;
+      } else {
+        // Insert new client
+        const { data: newClient, error: insertError } = await supabase
+          .from('clients')
+          .insert([{
+            name: name.trim(),
+            responded: responded || false,
+            paid: paid || 'no'
+          }])
+          .select()
+          .single();
+
+        if (insertError) throw insertError;
+        clientId = newClient.id;
+      }
 
       // Check rate limits and get user identifiers
-      const { ip, fingerprint } = await checkRateLimit(clientData.id);
+      const { ip, fingerprint } = await checkRateLimit(clientId);
 
       // Record the rating attempt
       const { error: attemptError } = await supabase
         .from('rating_attempts')
         .insert([{
-          client_id: clientData.id,
+          client_id: clientId,
           ip_address: ip,
           browser_fingerprint: fingerprint
         }]);
@@ -97,18 +122,17 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false, onSucce
       if (attemptError) throw attemptError;
 
       toast({
-        title: "Cliente aggiunto con successo!",
-        description: "La valutazione è stata salvata nel database.",
+        title: "Valutazione salvata con successo!",
+        description: "La tua valutazione è stata registrata.",
       });
 
       onSuccess?.();
       onOpenChange(false);
-      window.location.reload(); // Refresh the page to show new results
     } catch (error: any) {
       console.error('Error saving client:', error);
       toast({
         title: "Errore",
-        description: error.message || "Si è verificato un errore durante il salvataggio del cliente.",
+        description: error.message || "Si è verificato un errore durante il salvataggio.",
         variant: "destructive"
       });
     }
@@ -239,6 +263,7 @@ export const RatingDialog = ({ open, onOpenChange, skipNameStep = false, onSucce
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-white p-6 max-w-md mx-auto">
+        <DialogTitle className="sr-only">Valuta Cliente</DialogTitle>
         {/* Stepper */}
         <div className="flex justify-center mb-8">
           {steps.map((_, index) => (

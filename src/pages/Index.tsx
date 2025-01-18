@@ -11,6 +11,7 @@ const Index = () => {
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  const [selectedClientName, setSelectedClientName] = useState('');
 
   const { data: clients = [], refetch } = useQuery({
     queryKey: ['clients'],
@@ -38,6 +39,11 @@ const Index = () => {
   const handleRatingSuccess = async () => {
     await refetch();
     setShowRatingDialog(false);
+  };
+
+  const handleRate = (clientName: string = '') => {
+    setSelectedClientName(clientName);
+    setShowRatingDialog(true);
   };
 
   const goodClients = filteredClients
@@ -97,7 +103,7 @@ const Index = () => {
                       ratings={1}
                       responseRate={client.responded ? 100 : 0}
                       paymentRate={client.paid === 'yes' ? 100 : client.paid === 'late' ? 50 : 0}
-                      onRate={() => setShowRatingDialog(true)}
+                      onRate={() => handleRate(client.name)}
                       showPayment={client.responded}
                     />
                   ))}
@@ -119,7 +125,7 @@ const Index = () => {
                       ratings={1}
                       responseRate={100}
                       paymentRate={100}
-                      onRate={() => setShowRatingDialog(true)}
+                      onRate={() => handleRate(client.name)}
                       showPayment={true}
                     />
                   ))}
@@ -139,7 +145,7 @@ const Index = () => {
               <div className="space-y-4">
                 <p>Nessun cliente trovato con questo nome.</p>
                 <Button
-                  onClick={() => setShowRatingDialog(true)}
+                  onClick={() => handleRate(searchQuery)}
                   className="rounded-full px-6 bg-black hover:bg-white hover:text-black border-2 border-black transition-colors"
                 >
                   Aggiungi nuovo cliente
@@ -164,6 +170,7 @@ const Index = () => {
         onOpenChange={setShowRatingDialog}
         skipNameStep={!isSearching}
         onSuccess={handleRatingSuccess}
+        initialClientName={selectedClientName}
       />
     </div>
   );
