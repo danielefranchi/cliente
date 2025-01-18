@@ -33,6 +33,38 @@ export type Database = {
         }
         Relationships: []
       }
+      rating_attempts: {
+        Row: {
+          browser_fingerprint: string
+          client_id: string
+          created_at: string
+          id: string
+          ip_address: string
+        }
+        Insert: {
+          browser_fingerprint: string
+          client_id: string
+          created_at?: string
+          id?: string
+          ip_address: string
+        }
+        Update: {
+          browser_fingerprint?: string
+          client_id?: string
+          created_at?: string
+          id?: string
+          ip_address?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rating_attempts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

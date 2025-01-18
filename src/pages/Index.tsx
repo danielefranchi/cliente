@@ -75,7 +75,7 @@ const Index = () => {
 
       {!isSearching ? (
         <div className="max-w-[600px] mx-auto">
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-16">
             {/* Bad Clients */}
             <div>
               <h2 className="text-xl font-semibold mb-16 flex items-center justify-center gap-2">
@@ -83,7 +83,7 @@ const Index = () => {
                 <span>Evitali</span>
                 <span>🚨</span>
               </h2>
-              <div className="space-y-8">
+              <div className="space-y-12">
                 {badClients.map(client => (
                   <ClientCard
                     key={client.id}
@@ -104,7 +104,7 @@ const Index = () => {
                 <span>Migliori clienti</span>
                 <span>✨</span>
               </h2>
-              <div className="space-y-8">
+              <div className="space-y-12">
                 {goodClients.map(client => (
                   <ClientCard
                     key={client.id}
