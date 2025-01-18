@@ -40,7 +40,6 @@ const Index = () => {
     setShowRatingDialog(false);
   };
 
-  // Split clients into good and bad based on response and payment
   const goodClients = filteredClients
     .filter(client => client.responded && client.paid === 'yes')
     .slice(0, 20);
@@ -90,7 +89,7 @@ const Index = () => {
                   <span>Evitali</span>
                   <span>🚨</span>
                 </h2>
-                <div className="space-y-16">
+                <div className="space-y-24">
                   {badClients.map(client => (
                     <ClientCard
                       key={client.id}
@@ -112,7 +111,7 @@ const Index = () => {
                   <span>Migliori clienti</span>
                   <span>✨</span>
                 </h2>
-                <div className="space-y-16">
+                <div className="space-y-24">
                   {goodClients.map(client => (
                     <ClientCard
                       key={client.id}
