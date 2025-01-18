@@ -38,7 +38,7 @@ export const ClientCard = ({
       <div className="mt-8 space-y-4">
         <div className="text-center">
           <h3 className="font-semibold text-lg">{name}</h3>
-          <p className="text-sm text-gray-500">{ratings} valutazioni</p>
+          <p className="text-sm text-gray-500">{ratings} {ratings === 1 ? 'valutazione' : 'valutazioni'}</p>
         </div>
 
         {/* Rating Bars */}
@@ -51,7 +51,7 @@ export const ClientCard = ({
                 <div className={cn(
                   "h-2 rounded-full transition-all",
                   responseRate === 0 ? "w-[10%] bg-red-500" :
-                  responseRate === 50 ? "w-1/2 bg-orange-500" :
+                  responseRate <= 50 ? "w-1/2 bg-orange-500" :
                   "w-full bg-green-500"
                 )} />
               </div>
@@ -71,7 +71,7 @@ export const ClientCard = ({
                 <div className={cn(
                   "h-2 rounded-full transition-all",
                   paymentRate === 0 ? "w-[10%] bg-red-500" :
-                  paymentRate === 50 ? "w-1/2 bg-orange-500" :
+                  paymentRate <= 50 ? "w-1/2 bg-orange-500" :
                   "w-full bg-green-500"
                 )} />
               </div>

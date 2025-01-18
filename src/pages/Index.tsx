@@ -14,26 +14,36 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedClientName, setSelectedClientName] = useState('');
 
-  const { data: clients = [], refetch } = useQuery({
+  const { data: clientsData = [], refetch } = useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Fetch clients with their rating attempts
+      const { data: clients, error } = await supabase
         .from('clients')
-        .select('*')
+        .select(`
+          *,
+          rating_attempts:rating_attempts(*)
+        `)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data;
+
+      // Process clients to include rating statistics
+      return clients.map(client => ({
+        ...client,
+        ratings: client.rating_attempts?.length || 0,
+        responseRate: client.responded ? 100 : 0,
+        paymentRate: client.paid === 'yes' ? 100 : client.paid === 'late' ? 50 : 0
+      }));
     }
   });
 
-  const filteredClients = clients.filter(client => 
+  const filteredClients = clientsData.filter(client => 
     client.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchQuery(value);
+    setSearchQuery(e.target.value);
   };
 
   const handleRatingSuccess = async () => {
@@ -79,9 +89,9 @@ const Index = () => {
           <ClientCard
             key={client.id}
             name={client.name}
-            ratings={1}
-            responseRate={client.responded ? 100 : 0}
-            paymentRate={client.paid === 'yes' ? 100 : client.paid === 'late' ? 50 : 0}
+            ratings={client.ratings}
+            responseRate={client.responseRate}
+            paymentRate={client.paymentRate}
             onRate={() => handleRate(client.name)}
             showPayment={client.responded}
             imageUrl={client.image_url}
@@ -137,9 +147,9 @@ const Index = () => {
                     <ClientCard
                       key={client.id}
                       name={client.name}
-                      ratings={1}
-                      responseRate={client.responded ? 100 : 0}
-                      paymentRate={client.paid === 'yes' ? 100 : client.paid === 'late' ? 50 : 0}
+                      ratings={client.ratings}
+                      responseRate={client.responseRate}
+                      paymentRate={client.paymentRate}
                       onRate={() => handleRate(client.name)}
                       showPayment={client.responded}
                       imageUrl={client.image_url}
@@ -160,7 +170,7 @@ const Index = () => {
                     <ClientCard
                       key={client.id}
                       name={client.name}
-                      ratings={1}
+                      ratings={client.ratings}
                       responseRate={100}
                       paymentRate={100}
                       onRate={() => handleRate(client.name)}
@@ -207,7 +217,7 @@ const Index = () => {
       <RatingDialog 
         open={showRatingDialog} 
         onOpenChange={setShowRatingDialog}
-        skipNameStep={searchQuery !== ''}
+        skipNameStep={selectedClientName !== ''}
         onSuccess={handleRatingSuccess}
         initialClientName={selectedClientName}
       />
