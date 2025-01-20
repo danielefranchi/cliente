@@ -20,7 +20,7 @@ const calculateBarPosition = (rate: number) => {
 };
 
 const getGradientStyle = () => ({
-  background: 'linear-gradient(to right, #EF4444 50%, #EAB308 33%, #22C55E)'
+  background: 'linear-gradient(to right, #EF4444 33%, #EAB308 33%, #22C55E 66%)'
 });
 
 const truncateName = (name: string) => {
