@@ -10,6 +10,7 @@ interface ClientCardProps {
   onRate: () => void;
   showPayment?: boolean;
   imageUrl?: string;
+  averageRating?: number; // Added this prop to the interface
 }
 
 const calculateBarPosition = (rate: number) => {
@@ -29,7 +30,8 @@ export const ClientCard = ({
   paymentRate,
   onRate,
   showPayment = true,
-  imageUrl
+  imageUrl,
+  averageRating // Added this prop to the destructuring
 }: ClientCardProps) => {
   return (
     <div className="relative bg-white rounded-lg p-6 pb-12 shadow-md w-[300px] mx-auto min-h-[240px]">
