@@ -22,11 +22,13 @@ interface ClientListProps {
 export const ClientList = ({ title, emoji, clients, onRate }: ClientListProps) => {
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-16 flex items-center justify-center gap-2">
-        <span>{emoji}</span>
-        <span>{title}</span>
-        <span>{emoji}</span>
-      </h2>
+      {title && (
+        <h2 className="text-xl font-semibold mb-16 flex items-center justify-center gap-2">
+          <span>{emoji}</span>
+          <span>{title}</span>
+          <span>{emoji}</span>
+        </h2>
+      )}
       <div className="space-y-24">
         {clients.slice(0, 20).map(client => (
           <ClientCard

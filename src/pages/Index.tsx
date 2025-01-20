@@ -7,7 +7,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { SearchBar } from '@/components/search/SearchBar';
 import { NoResults } from '@/components/search/NoResults';
 import { ClientList } from '@/components/client-list/ClientList';
-import { ClientCard } from '@/components/ClientCard';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -33,24 +32,9 @@ const Index = () => {
         ratings: client.rating_attempts?.length || 0,
         responseRate: client.responded ? 100 : 0,
         paymentRate: client.paid === 'yes' ? 100 : client.paid === 'late' ? 50 : 0,
-        averageRating: calculateAverageRating(client.rating_attempts || [])
       }));
     }
   });
-
-  const calculateAverageRating = (attempts: any[]) => {
-    if (attempts.length === 0) return 3;
-    const total = attempts.reduce((sum, attempt) => {
-      if (attempt.paid === 'yes') return sum + 6;
-      if (attempt.paid === 'late') return sum + 3;
-      return sum;
-    }, 0);
-    return Math.round(total / attempts.length);
-  };
-
-  const filteredClients = clientsData.filter(client => 
-    client.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const handleRatingSuccess = async () => {
     await refetch();
@@ -62,31 +46,12 @@ const Index = () => {
     setShowRatingDialog(true);
   };
 
-  const renderSearchResults = () => {
-    if (searchQuery === '') return null;
+  const filteredClients = clientsData.filter(client => 
+    client.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-    if (filteredClients.length === 0) {
-      return <NoResults searchQuery={searchQuery} onAddClient={handleRate} />;
-    }
-
-    return (
-      <div className="space-y-24">
-        {filteredClients.map(client => (
-          <ClientCard
-            key={client.id}
-            name={client.name}
-            ratings={client.ratings}
-            responseRate={client.responseRate}
-            paymentRate={client.paymentRate}
-            averageRating={client.averageRating}
-            onRate={() => handleRate(client.name)}
-            showPayment={client.responded}
-            imageUrl={client.image_url}
-          />
-        ))}
-      </div>
-    );
-  };
+  const badClients = clientsData.filter(client => !client.responded || client.paid === 'no');
+  const goodClients = clientsData.filter(client => client.responded && client.paid === 'yes');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -113,20 +78,34 @@ const Index = () => {
         <Separator className="my-16" />
 
         {searchQuery ? (
-          renderSearchResults()
+          filteredClients.length === 0 ? (
+            <NoResults searchQuery={searchQuery} onAddClient={handleRate} />
+          ) : (
+            <div className="space-y-24">
+              {filteredClients.map(client => (
+                <ClientList
+                  key={client.id}
+                  title=""
+                  emoji=""
+                  clients={[client]}
+                  onRate={handleRate}
+                />
+              ))}
+            </div>
+          )
         ) : (
           <div className="max-w-[1200px] mx-auto">
             <div className="grid md:grid-cols-2 gap-16">
               <ClientList
                 title="Evitali"
                 emoji="🚨"
-                clients={clientsData.filter(client => !client.responded || client.paid === 'no')}
+                clients={badClients}
                 onRate={handleRate}
               />
               <ClientList
                 title="Migliori clienti"
                 emoji="✨"
-                clients={clientsData.filter(client => client.responded && client.paid === 'yes')}
+                clients={goodClients}
                 onRate={handleRate}
               />
             </div>
