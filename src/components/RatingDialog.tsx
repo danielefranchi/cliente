@@ -21,7 +21,7 @@ export const RatingDialog = ({
   onSuccess,
   initialClientName = ''
 }: RatingDialogProps) => {
-  const [step, setStep] = useState(skipNameStep ? 1 : 0);
+  const [step, setStep] = useState(0);
   const [name, setName] = useState(initialClientName);
   const [responded, setResponded] = useState<boolean | null>(null);
   const [paid, setPaid] = useState<'yes' | 'no' | 'late' | null>(null);
@@ -30,14 +30,14 @@ export const RatingDialog = ({
 
   useEffect(() => {
     if (open) {
-      // If we have an initial client name, start from step 1
-      setStep(initialClientName ? 1 : 0);
+      // Always start from step 0 unless explicitly told to skip it
+      setStep(skipNameStep ? 1 : 0);
       setName(initialClientName);
       setResponded(null);
       setPaid(null);
       setConfirmed(false);
     }
-  }, [open, initialClientName]);
+  }, [open, initialClientName, skipNameStep]);
 
   const handleSubmit = async () => {
     try {
