@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { ClientCard } from '@/components/ClientCard';
@@ -10,6 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
+  const navigate = useNavigate();
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedClientName, setSelectedClientName] = useState('');
@@ -21,7 +22,7 @@ const Index = () => {
         .from('clients')
         .select(`
           *,
-          rating_attempts:rating_attempts(*)
+          rating_attempts(*)
         `)
         .order('created_at', { ascending: false });
       
@@ -31,10 +32,21 @@ const Index = () => {
         ...client,
         ratings: client.rating_attempts?.length || 0,
         responseRate: client.responded ? 100 : 0,
-        paymentRate: client.paid === 'yes' ? 100 : client.paid === 'late' ? 50 : 0
+        paymentRate: client.paid === 'yes' ? 100 : client.paid === 'late' ? 50 : 0,
+        averageRating: calculateAverageRating(client.rating_attempts || [])
       }));
     }
   });
+
+  const calculateAverageRating = (attempts: any[]) => {
+    if (attempts.length === 0) return 3;
+    const total = attempts.reduce((sum, attempt) => {
+      if (attempt.paid === 'yes') return sum + 6;
+      if (attempt.paid === 'late') return sum + 3;
+      return sum;
+    }, 0);
+    return Math.round(total / attempts.length);
+  };
 
   const filteredClients = clientsData.filter(client => 
     client.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -54,22 +66,16 @@ const Index = () => {
     setShowRatingDialog(true);
   };
 
-  const goodClients = filteredClients
-    .filter(client => client.responded && client.paid === 'yes')
-    .slice(0, 20);
-
-  const badClients = filteredClients
-    .filter(client => !client.responded || client.paid === 'no')
-    .slice(0, 20);
-
   const renderSearchResults = () => {
     if (searchQuery === '') return null;
 
     if (filteredClients.length === 0) {
       return (
         <div className="text-center">
-          <div className="space-y-4">
-            <p className="text-lg">{searchQuery} non è valutato.</p>
+          <div className="space-y-2">
+            <p className="text-lg">
+              <strong>{searchQuery} non è valutato.</strong>
+            </p>
             <p>Bisogna aggiungerlo!</p>
             <p className="text-gray-600">Non dovrai iscriverti o inserire i tuoi dati.</p>
             <Button
@@ -92,6 +98,7 @@ const Index = () => {
             ratings={client.ratings}
             responseRate={client.responseRate}
             paymentRate={client.paymentRate}
+            averageRating={client.averageRating}
             onRate={() => handleRate(client.name)}
             showPayment={client.responded}
             imageUrl={client.image_url}
@@ -109,7 +116,8 @@ const Index = () => {
           <img 
             src="/lovable-uploads/0ce1c75d-20f4-4971-9813-501d311e4180.png" 
             alt="Logo"
-            className="h-12 mx-auto mb-4"
+            className="h-12 mx-auto mb-4 cursor-pointer"
+            onClick={() => navigate('/')}
           />
           <h1 className="text-3xl font-medium mb-2">
             Scopri se un cliente risponde al tuo preventivo
@@ -118,7 +126,7 @@ const Index = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="max-w-2xl mx-auto mb-12 relative">
+        <div className="max-w-lg mx-auto mb-12 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           <Input
             className="h-12 pl-10"
@@ -144,18 +152,22 @@ const Index = () => {
                   <span>🚨</span>
                 </h2>
                 <div className="space-y-24">
-                  {badClients.map(client => (
-                    <ClientCard
-                      key={client.id}
-                      name={client.name}
-                      ratings={client.ratings}
-                      responseRate={client.responseRate}
-                      paymentRate={client.paymentRate}
-                      onRate={() => handleRate(client.name)}
-                      showPayment={client.responded}
-                      imageUrl={client.image_url}
-                    />
-                  ))}
+                  {filteredClients
+                    .filter(client => !client.responded || client.paid === 'no')
+                    .slice(0, 20)
+                    .map(client => (
+                      <ClientCard
+                        key={client.id}
+                        name={client.name}
+                        ratings={client.ratings}
+                        responseRate={client.responseRate}
+                        paymentRate={client.paymentRate}
+                        averageRating={client.averageRating}
+                        onRate={() => handleRate(client.name)}
+                        showPayment={client.responded}
+                        imageUrl={client.image_url}
+                      />
+                    ))}
                 </div>
               </div>
 
@@ -167,34 +179,25 @@ const Index = () => {
                   <span>✨</span>
                 </h2>
                 <div className="space-y-24">
-                  {goodClients.map(client => (
-                    <ClientCard
-                      key={client.id}
-                      name={client.name}
-                      ratings={client.ratings}
-                      responseRate={100}
-                      paymentRate={100}
-                      onRate={() => handleRate(client.name)}
-                      showPayment={true}
-                      imageUrl={client.image_url}
-                    />
-                  ))}
+                  {filteredClients
+                    .filter(client => client.responded && client.paid === 'yes')
+                    .slice(0, 20)
+                    .map(client => (
+                      <ClientCard
+                        key={client.id}
+                        name={client.name}
+                        ratings={client.ratings}
+                        responseRate={100}
+                        paymentRate={100}
+                        averageRating={client.averageRating}
+                        onRate={() => handleRate(client.name)}
+                        showPayment={true}
+                        imageUrl={client.image_url}
+                      />
+                    ))}
                 </div>
               </div>
             </div>
-
-            {(goodClients.length >= 20 || badClients.length >= 20) && (
-              <div className="mt-16">
-                <div className="max-w-2xl mx-auto">
-                  <Input
-                    className="h-12"
-                    placeholder="Cerca nome azienda, progetto o cliente"
-                    value={searchQuery}
-                    onChange={handleSearch}
-                  />
-                </div>
-              </div>
-            )}
           </div>
         )}
       </div>
@@ -218,7 +221,7 @@ const Index = () => {
       <RatingDialog 
         open={showRatingDialog} 
         onOpenChange={setShowRatingDialog}
-        skipNameStep={selectedClientName !== ''}
+        skipNameStep={false}
         onSuccess={handleRatingSuccess}
         initialClientName={selectedClientName}
       />

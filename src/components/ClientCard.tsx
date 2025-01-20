@@ -1,12 +1,14 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { cn } from '@/lib/utils';
+import { RatingBar } from './RatingBar';
 
 interface ClientCardProps {
   name: string;
   ratings: number;
   responseRate: number;
   paymentRate: number;
+  averageRating?: number;
   onRate: () => void;
   showPayment?: boolean;
   imageUrl?: string;
@@ -16,7 +18,8 @@ export const ClientCard = ({
   name, 
   ratings, 
   responseRate, 
-  paymentRate, 
+  paymentRate,
+  averageRating = 3,
   onRate,
   showPayment = true,
   imageUrl
@@ -39,6 +42,11 @@ export const ClientCard = ({
         <div className="text-center">
           <h3 className="font-semibold text-lg">{name}</h3>
           <p className="text-sm text-gray-500">{ratings} {ratings === 1 ? 'valutazione' : 'valutazioni'}</p>
+          {ratings > 0 && (
+            <div className="mt-2">
+              <RatingBar rating={averageRating} className="mx-auto max-w-[200px]" />
+            </div>
+          )}
         </div>
 
         {/* Rating Bars */}
@@ -62,7 +70,7 @@ export const ClientCard = ({
           <div className={cn(
             "transition-opacity duration-200",
             !showPayment && "opacity-0 invisible",
-            "h-[60px]" // Fixed height to maintain card size
+            "h-[60px]"
           )}>
             <p className="text-center mb-0">Paga?</p>
             <div className="flex items-center gap-2">
