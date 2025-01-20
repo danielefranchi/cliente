@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SearchBar } from '@/components/search/SearchBar';
 import { NoResults } from '@/components/search/NoResults';
 import { ClientList } from '@/components/client-list/ClientList';
+import { ClientCard } from '@/components/ClientCard';
 
 const Index = () => {
   const navigate = useNavigate();
