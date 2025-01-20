@@ -36,17 +36,27 @@ export const RatingSteps = ({
           <input
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              if (e.target.value.length <= 24) {
+                setName(e.target.value);
+              }
+            }}
             placeholder="Nome azienda o progetto"
             className="w-full p-2 border rounded"
+            maxLength={24}
           />
+          {name.length > 0 && (
+            <p className="text-sm text-gray-500">
+              {24 - name.length} caratteri rimanenti
+            </p>
+          )}
         </div>
       );
     case 1:
       return (
         <div className="text-center space-y-6">
           <h2 className="text-xl font-semibold">
-            Ha risposto al tuo preventivo? <span className="text-sm text-gray-500">(entro 7 giorni)</span>
+            Ha risposto al tuo preventivo? <span className="text-sm text-gray-500 ml-1">(entro 7 giorni)</span>
           </h2>
           <div className="flex justify-center gap-8">
             <Button

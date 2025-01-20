@@ -1,25 +1,32 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { cn } from '@/lib/utils';
-import { RatingBar } from './RatingBar';
 
 interface ClientCardProps {
   name: string;
   ratings: number;
   responseRate: number;
   paymentRate: number;
-  averageRating?: number;
   onRate: () => void;
   showPayment?: boolean;
   imageUrl?: string;
 }
+
+const calculateBarPosition = (rate: number) => {
+  // Convert rate to a position between 0-6
+  const position = Math.round((rate / 100) * 6);
+  return `${(position / 6) * 100}%`;
+};
+
+const getGradientStyle = () => ({
+  background: 'linear-gradient(to right, #EF4444, #F97316, #EAB308, #22C55E)'
+});
 
 export const ClientCard = ({ 
   name, 
   ratings, 
   responseRate, 
   paymentRate,
-  averageRating = 3,
   onRate,
   showPayment = true,
   imageUrl
@@ -42,11 +49,6 @@ export const ClientCard = ({
         <div className="text-center">
           <h3 className="font-semibold text-lg">{name}</h3>
           <p className="text-sm text-gray-500">{ratings} {ratings === 1 ? 'valutazione' : 'valutazioni'}</p>
-          {ratings > 0 && (
-            <div className="mt-2">
-              <RatingBar rating={averageRating} className="mx-auto max-w-[200px]" />
-            </div>
-          )}
         </div>
 
         {/* Rating Bars */}
@@ -55,13 +57,16 @@ export const ClientCard = ({
             <p className="text-center mb-0">Risponde ai preventivi?</p>
             <div className="flex items-center gap-2">
               <span className="text-xl">👻</span>
-              <div className="flex-1 h-2 rounded-full bg-gray-200">
-                <div className={cn(
+              <div className="flex-1 h-2 rounded-full bg-gray-200 relative">
+                <div style={getGradientStyle()} className={cn(
                   "h-2 rounded-full transition-all",
-                  responseRate === 0 ? "w-[10%] bg-red-500" :
-                  responseRate <= 50 ? "w-1/2 bg-orange-500" :
-                  "w-full bg-green-500"
+                  responseRate === 0 ? "w-[16.67%]" :
+                  `w-[${calculateBarPosition(responseRate)}]`
                 )} />
+                <div 
+                  className="w-3 h-3 bg-white rounded-full shadow-md absolute top-1/2 -translate-y-1/2"
+                  style={{ left: calculateBarPosition(responseRate) }}
+                />
               </div>
               <span className="text-xl">🥳</span>
             </div>
@@ -75,13 +80,16 @@ export const ClientCard = ({
             <p className="text-center mb-0">Paga?</p>
             <div className="flex items-center gap-2">
               <span className="text-xl">😈</span>
-              <div className="flex-1 h-2 rounded-full bg-gray-200">
-                <div className={cn(
+              <div className="flex-1 h-2 rounded-full bg-gray-200 relative">
+                <div style={getGradientStyle()} className={cn(
                   "h-2 rounded-full transition-all",
-                  paymentRate === 0 ? "w-[10%] bg-red-500" :
-                  paymentRate <= 50 ? "w-1/2 bg-orange-500" :
-                  "w-full bg-green-500"
+                  paymentRate === 0 ? "w-[16.67%]" :
+                  `w-[${calculateBarPosition(paymentRate)}]`
                 )} />
+                <div 
+                  className="w-3 h-3 bg-white rounded-full shadow-md absolute top-1/2 -translate-y-1/2"
+                  style={{ left: calculateBarPosition(paymentRate) }}
+                />
               </div>
               <span className="text-xl">🤑</span>
             </div>

@@ -30,13 +30,14 @@ export const RatingDialog = ({
 
   useEffect(() => {
     if (open) {
-      setStep(skipNameStep ? 1 : 0);
+      // If we have an initial client name, start from step 1
+      setStep(initialClientName ? 1 : 0);
       setName(initialClientName);
       setResponded(null);
       setPaid(null);
       setConfirmed(false);
     }
-  }, [open, skipNameStep, initialClientName]);
+  }, [open, initialClientName]);
 
   const handleSubmit = async () => {
     try {
@@ -62,7 +63,7 @@ export const RatingDialog = ({
   const canProceed = () => {
     switch (step) {
       case 0:
-        return name.length > 0;
+        return name.length > 0 && name.length <= 24;
       case 1:
         return responded !== null;
       case 2:
