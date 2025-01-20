@@ -72,7 +72,7 @@ const Index = () => {
     if (filteredClients.length === 0) {
       return (
         <div className="text-center">
-          <div className="space-y-2">
+          <div className="space-y-4">
             <p className="text-lg">
               <strong>{searchQuery} non è valutato.</strong>
             </p>
@@ -80,9 +80,9 @@ const Index = () => {
             <p className="text-gray-600">Non dovrai iscriverti o inserire i tuoi dati.</p>
             <Button
               onClick={() => handleRate(searchQuery)}
-              className="rounded-full px-6 bg-black hover:bg-white hover:text-black border-2 border-black transition-colors"
+              className="rounded-full px-6 mt-6 bg-black hover:bg-white hover:text-black border-2 border-black transition-colors"
             >
-              Aggiungi {searchQuery}
+              Aggiungi {searchQuery.length > 20 ? `${searchQuery.slice(0, 10)}...` : searchQuery}
             </Button>
           </div>
         </div>
@@ -111,7 +111,6 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="px-4 py-8">
-        {/* Logo section */}
         <div className="text-center mb-8">
           <img 
             src="/lovable-uploads/0ce1c75d-20f4-4971-9813-501d311e4180.png" 
@@ -125,7 +124,6 @@ const Index = () => {
           <p className="text-xl text-gray-600">e se paga davvero.</p>
         </div>
 
-        {/* Search Bar */}
         <div className="max-w-lg mx-auto mb-12 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           <Input
@@ -141,10 +139,8 @@ const Index = () => {
         {searchQuery ? (
           renderSearchResults()
         ) : (
-          // ... keep existing code (grid layout for good/bad clients)
           <div className="max-w-[1200px] mx-auto">
             <div className="grid md:grid-cols-2 gap-16">
-              {/* Bad Clients */}
               <div>
                 <h2 className="text-xl font-semibold mb-16 flex items-center justify-center gap-2">
                   <span>🚨</span>
@@ -171,7 +167,6 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Good Clients */}
               <div>
                 <h2 className="text-xl font-semibold mb-16 flex items-center justify-center gap-2">
                   <span>✨</span>
@@ -202,7 +197,6 @@ const Index = () => {
         )}
       </div>
 
-      {/* Footer */}
       <footer className="bg-black text-white py-8 px-4 mt-16">
         <div className="max-w-4xl mx-auto text-sm text-gray-300">
           <div className="space-y-4">
