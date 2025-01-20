@@ -10,7 +10,7 @@ interface ClientCardProps {
   onRate: () => void;
   showPayment?: boolean;
   imageUrl?: string;
-  averageRating?: number; // Added this prop to the interface
+  averageRating?: number;
 }
 
 const calculateBarPosition = (rate: number) => {
@@ -20,8 +20,15 @@ const calculateBarPosition = (rate: number) => {
 };
 
 const getGradientStyle = () => ({
-  background: 'linear-gradient(to right, #EF4444, #F97316, #EAB308, #22C55E)'
+  background: 'linear-gradient(to right, #EF4444 50%, #EAB308 33%, #22C55E)'
 });
+
+const truncateName = (name: string) => {
+  if (name.length > 20) {
+    return `${name.slice(0, 10)}...`;
+  }
+  return name;
+};
 
 export const ClientCard = ({ 
   name, 
@@ -31,15 +38,17 @@ export const ClientCard = ({
   onRate,
   showPayment = true,
   imageUrl,
-  averageRating // Added this prop to the destructuring
+  averageRating
 }: ClientCardProps) => {
+  const displayName = truncateName(name);
+  
   return (
     <div className="relative bg-white rounded-lg p-6 pb-12 shadow-md w-[300px] mx-auto min-h-[240px]">
       {/* Profile Picture */}
       <div className="absolute -top-6 left-1/2 transform -translate-x-1/2">
         <div className="w-16 h-16 bg-[#F0F0F0] rounded-full flex items-center justify-center overflow-hidden">
           {imageUrl ? (
-            <img src={imageUrl} alt={name} className="w-full h-full object-cover" />
+            <img src={imageUrl} alt={displayName} className="w-full h-full object-cover" />
           ) : (
             <span className="text-2xl">🏢</span>
           )}
@@ -49,7 +58,7 @@ export const ClientCard = ({
       {/* Content */}
       <div className="mt-8 space-y-4">
         <div className="text-center">
-          <h3 className="font-semibold text-lg">{name}</h3>
+          <h3 className="font-semibold text-lg">{displayName}</h3>
           <p className="text-sm text-gray-500">{ratings} {ratings === 1 ? 'valutazione' : 'valutazioni'}</p>
         </div>
 
