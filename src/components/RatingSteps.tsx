@@ -37,17 +37,17 @@ export const RatingSteps = ({
             type="text"
             value={name}
             onChange={(e) => {
-              if (e.target.value.length <= 24) {
+              if (e.target.value.length <= 32) {
                 setName(e.target.value);
               }
             }}
             placeholder="Nome azienda o progetto"
             className="w-full p-2 border rounded"
-            maxLength={24}
+            maxLength={32}
           />
-          {name.length > 0 && (
+          {name.length > 14 && (
             <p className="text-sm text-gray-500">
-              {24 - name.length} caratteri rimanenti
+              {32 - name.length} caratteri rimanenti
             </p>
           )}
         </div>
