@@ -50,8 +50,22 @@ const Index = () => {
     client.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const badClients = clientsData.filter(client => !client.responded || client.paid === 'no');
-  const goodClients = clientsData.filter(client => client.responded && client.paid === 'yes');
+  const sortByRatings = (clients: any[]) => {
+    return [...clients].sort((a, b) => b.ratings - a.ratings);
+  };
+
+  const badClients = sortByRatings(
+    clientsData.filter(client => !client.responded || client.paid === 'no')
+  ).sort((a, b) => {
+    // Prioritize clients with both bad results
+    const aBothBad = !a.responded && a.paid === 'no' ? 1 : 0;
+    const bBothBad = !b.responded && b.paid === 'no' ? 1 : 0;
+    return bBothBad - aBothBad;
+  });
+
+  const goodClients = sortByRatings(
+    clientsData.filter(client => client.responded && client.paid === 'yes')
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
