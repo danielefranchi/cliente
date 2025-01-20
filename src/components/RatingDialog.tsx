@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { RatingSteps } from './RatingSteps';
 import { saveRating } from '@/utils/ratingUtils';
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 interface RatingDialogProps {
   open: boolean;
@@ -30,12 +31,29 @@ export const RatingDialog = ({
 
   useEffect(() => {
     if (open) {
-      // Always start from step 0 unless explicitly told to skip it
-      setStep(skipNameStep ? 1 : 0);
-      setName(initialClientName);
-      setResponded(null);
-      setPaid(null);
-      setConfirmed(false);
+      const checkExistingClient = async () => {
+        if (initialClientName) {
+          const { data: existingClient } = await supabase
+            .from('clients')
+            .select('*')
+            .ilike('name', initialClientName.trim())
+            .maybeSingle();
+
+          if (existingClient) {
+            setStep(1); // Skip name step for existing clients
+          } else {
+            setStep(0); // Start at name step for new clients
+          }
+        } else {
+          setStep(0);
+        }
+        setName(initialClientName);
+        setResponded(null);
+        setPaid(null);
+        setConfirmed(false);
+      };
+
+      checkExistingClient();
     }
   }, [open, initialClientName, skipNameStep]);
 
@@ -63,7 +81,7 @@ export const RatingDialog = ({
   const canProceed = () => {
     switch (step) {
       case 0:
-        return name.length > 0 && name.length <= 24;
+        return name.length > 0 && name.length <= 32;
       case 1:
         return responded !== null;
       case 2:
