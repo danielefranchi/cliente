@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
-import { ClientCard } from '@/components/ClientCard';
-import { RatingDialog } from '@/components/RatingDialog';
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
+import { RatingDialog } from '@/components/RatingDialog';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
+import { SearchBar } from '@/components/search/SearchBar';
+import { NoResults } from '@/components/search/NoResults';
+import { ClientList } from '@/components/client-list/ClientList';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -52,10 +51,6 @@ const Index = () => {
     client.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
-
   const handleRatingSuccess = async () => {
     await refetch();
     setShowRatingDialog(false);
@@ -70,23 +65,7 @@ const Index = () => {
     if (searchQuery === '') return null;
 
     if (filteredClients.length === 0) {
-      return (
-        <div className="text-center">
-          <div className="space-y-4">
-            <p className="text-lg">
-              <strong>{searchQuery} non è valutato.</strong>
-            </p>
-            <p>Bisogna aggiungerlo!</p>
-            <p className="text-gray-600">Non dovrai iscriverti o inserire i tuoi dati.</p>
-            <Button
-              onClick={() => handleRate(searchQuery)}
-              className="rounded-full px-6 mt-6 bg-black hover:bg-white hover:text-black border-2 border-black transition-colors"
-            >
-              Aggiungi {searchQuery.length > 20 ? `${searchQuery.slice(0, 10)}...` : searchQuery}
-            </Button>
-          </div>
-        </div>
-      );
+      return <NoResults searchQuery={searchQuery} onAddClient={handleRate} />;
     }
 
     return (
@@ -124,15 +103,11 @@ const Index = () => {
           <p className="text-xl text-gray-600">e se paga davvero.</p>
         </div>
 
-        <div className="max-w-lg mx-auto mb-12 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <Input
-            className="h-12 pl-10"
-            placeholder="Cerca nome azienda, progetto o cliente"
-            value={searchQuery}
-            onChange={handleSearch}
-          />
-        </div>
+        <SearchBar 
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          onAddClient={handleRate}
+        />
 
         <Separator className="my-16" />
 
@@ -141,57 +116,18 @@ const Index = () => {
         ) : (
           <div className="max-w-[1200px] mx-auto">
             <div className="grid md:grid-cols-2 gap-16">
-              <div>
-                <h2 className="text-xl font-semibold mb-16 flex items-center justify-center gap-2">
-                  <span>🚨</span>
-                  <span>Evitali</span>
-                  <span>🚨</span>
-                </h2>
-                <div className="space-y-24">
-                  {filteredClients
-                    .filter(client => !client.responded || client.paid === 'no')
-                    .slice(0, 20)
-                    .map(client => (
-                      <ClientCard
-                        key={client.id}
-                        name={client.name}
-                        ratings={client.ratings}
-                        responseRate={client.responseRate}
-                        paymentRate={client.paymentRate}
-                        averageRating={client.averageRating}
-                        onRate={() => handleRate(client.name)}
-                        showPayment={client.responded}
-                        imageUrl={client.image_url}
-                      />
-                    ))}
-                </div>
-              </div>
-
-              <div>
-                <h2 className="text-xl font-semibold mb-16 flex items-center justify-center gap-2">
-                  <span>✨</span>
-                  <span>Migliori clienti</span>
-                  <span>✨</span>
-                </h2>
-                <div className="space-y-24">
-                  {filteredClients
-                    .filter(client => client.responded && client.paid === 'yes')
-                    .slice(0, 20)
-                    .map(client => (
-                      <ClientCard
-                        key={client.id}
-                        name={client.name}
-                        ratings={client.ratings}
-                        responseRate={100}
-                        paymentRate={100}
-                        averageRating={client.averageRating}
-                        onRate={() => handleRate(client.name)}
-                        showPayment={true}
-                        imageUrl={client.image_url}
-                      />
-                    ))}
-                </div>
-              </div>
+              <ClientList
+                title="Evitali"
+                emoji="🚨"
+                clients={clientsData.filter(client => !client.responded || client.paid === 'no')}
+                onRate={handleRate}
+              />
+              <ClientList
+                title="Migliori clienti"
+                emoji="✨"
+                clients={clientsData.filter(client => client.responded && client.paid === 'yes')}
+                onRate={handleRate}
+              />
             </div>
           </div>
         )}
