@@ -74,21 +74,21 @@ export type Database = {
           client_id: string
           created_at: string
           id: string
-          paid: string
+          paid: string | null
           responded: boolean
         }
         Insert: {
           client_id: string
           created_at?: string
           id?: string
-          paid: string
+          paid?: string | null
           responded: boolean
         }
         Update: {
           client_id?: string
           created_at?: string
           id?: string
-          paid?: string
+          paid?: string | null
           responded?: boolean
         }
         Relationships: [
