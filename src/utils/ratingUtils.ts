@@ -27,7 +27,12 @@ export const saveRating = async (
   responded: boolean | null, 
   paid: 'yes' | 'no' | 'late' | null
 ) => {
-  if (!responded || !paid) {
+  if (responded === null) {
+    throw new Error('Missing required rating data');
+  }
+
+  // If responded is false, we don't need to validate paid
+  if (responded === true && paid === null) {
     throw new Error('Missing required rating data');
   }
 
@@ -62,7 +67,7 @@ export const saveRating = async (
     .insert([{
       client_id: clientId,
       responded,
-      paid
+      paid: responded ? paid : null
     }]);
 
   if (ratingError) throw ratingError;

@@ -59,7 +59,12 @@ export const RatingDialog = ({
 
   const handleSubmit = async () => {
     try {
-      await saveRating(name, responded, paid);
+      // If responded is false, we don't need the paid value
+      const ratingData = responded === false ? 
+        { name, responded, paid: null } : 
+        { name, responded, paid };
+
+      await saveRating(ratingData.name, ratingData.responded, ratingData.paid);
       
       toast({
         title: "Valutazione salvata con successo!",
@@ -87,7 +92,8 @@ export const RatingDialog = ({
       case 2:
         return paid !== null;
       case 3:
-        return confirmed;
+        // If responded is false, we don't need to check paid
+        return responded === false ? confirmed : (paid !== null && confirmed);
       default:
         return false;
     }
@@ -98,7 +104,6 @@ export const RatingDialog = ({
       <DialogContent className="bg-white p-6 max-w-md mx-auto">
         <DialogTitle className="sr-only">Valuta Cliente</DialogTitle>
         
-        {/* Stepper */}
         <div className="flex justify-center mb-8">
           {[0, 1, 2, 3].map((_, index) => (
             <React.Fragment key={index}>
@@ -113,7 +118,6 @@ export const RatingDialog = ({
           ))}
         </div>
 
-        {/* Content */}
         <RatingSteps
           step={step}
           name={name}
@@ -127,7 +131,6 @@ export const RatingDialog = ({
           setStep={setStep}
         />
 
-        {/* Actions */}
         <div className="mt-8 flex justify-center">
           {step === 3 ? (
             <Button
