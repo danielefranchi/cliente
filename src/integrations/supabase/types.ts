@@ -15,24 +15,18 @@ export type Database = {
           id: string
           image_url: string | null
           name: string
-          paid: string
-          responded: boolean
         }
         Insert: {
           created_at?: string
           id?: string
           image_url?: string | null
           name: string
-          paid: string
-          responded: boolean
         }
         Update: {
           created_at?: string
           id?: string
           image_url?: string | null
           name?: string
-          paid?: string
-          responded?: boolean
         }
         Relationships: []
       }
@@ -63,6 +57,52 @@ export type Database = {
             foreignKeyName: "rating_attempts_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "client_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rating_attempts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ratings: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          paid: string
+          responded: boolean
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          paid: string
+          responded: boolean
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          paid?: string
+          responded?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ratings_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "client_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ratings_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "clients"
             referencedColumns: ["id"]
           },
@@ -70,7 +110,18 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      client_stats: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          image_url: string | null
+          name: string | null
+          payment_rate: number | null
+          response_rate: number | null
+          total_ratings: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

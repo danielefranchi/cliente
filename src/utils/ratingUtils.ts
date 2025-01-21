@@ -27,36 +27,25 @@ export const saveRating = async (
   responded: boolean | null, 
   paid: 'yes' | 'no' | 'late' | null
 ) => {
-  // Check if client already exists
-  const { data: existingClients } = await supabase
+  if (!responded || !paid) {
+    throw new Error('Missing required rating data');
+  }
+
+  // First, get or create the client
+  let clientId: string;
+  
+  const { data: existingClient } = await supabase
     .from('clients')
-    .select('id, responded, paid')
+    .select('id')
     .ilike('name', name.trim())
     .maybeSingle();
 
-  let clientId;
-  
-  if (existingClients) {
-    // Update existing client
-    const { error: updateError } = await supabase
-      .from('clients')
-      .update({
-        responded: responded || existingClients.responded,
-        paid: paid || existingClients.paid
-      })
-      .eq('id', existingClients.id);
-
-    if (updateError) throw updateError;
-    clientId = existingClients.id;
+  if (existingClient) {
+    clientId = existingClient.id;
   } else {
-    // Insert new client
     const { data: newClient, error: insertError } = await supabase
       .from('clients')
-      .insert([{
-        name: name.trim(),
-        responded: responded || false,
-        paid: paid || 'no'
-      }])
+      .insert([{ name: name.trim() }])
       .select()
       .single();
 
@@ -66,6 +55,17 @@ export const saveRating = async (
 
   // Check rate limits and get user identifiers
   const { ip, fingerprint } = await checkRateLimit(clientId);
+
+  // Add the rating
+  const { error: ratingError } = await supabase
+    .from('ratings')
+    .insert([{
+      client_id: clientId,
+      responded,
+      paid
+    }]);
+
+  if (ratingError) throw ratingError;
 
   // Record the rating attempt
   const { error: attemptError } = await supabase

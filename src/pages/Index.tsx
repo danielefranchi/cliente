@@ -18,20 +18,17 @@ const Index = () => {
     queryKey: ['clients'],
     queryFn: async () => {
       const { data: clients, error } = await supabase
-        .from('clients')
-        .select(`
-          *,
-          rating_attempts(*)
-        `)
+        .from('client_stats')
+        .select('*')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
 
       return clients.map(client => ({
         ...client,
-        ratings: client.rating_attempts?.length || 0,
-        responseRate: client.responded ? 100 : 0,
-        paymentRate: client.paid === 'yes' ? 100 : client.paid === 'late' ? 50 : 0,
+        ratings: client.total_ratings || 0,
+        responseRate: client.response_rate || 0,
+        paymentRate: client.payment_rate || 0,
       }));
     }
   });
@@ -55,16 +52,20 @@ const Index = () => {
   };
 
   const badClients = sortByRatings(
-    clientsData.filter(client => !client.responded || client.paid === 'no')
+    clientsData.filter(client => 
+      client.response_rate < 50 || client.payment_rate < 50
+    )
   ).sort((a, b) => {
     // Prioritize clients with both bad results
-    const aBothBad = !a.responded && a.paid === 'no' ? 1 : 0;
-    const bBothBad = !b.responded && b.paid === 'no' ? 1 : 0;
+    const aBothBad = (a.response_rate < 50 && a.payment_rate < 50) ? 1 : 0;
+    const bBothBad = (b.response_rate < 50 && b.payment_rate < 50) ? 1 : 0;
     return bBothBad - aBothBad;
   });
 
   const goodClients = sortByRatings(
-    clientsData.filter(client => client.responded && client.paid === 'yes')
+    clientsData.filter(client => 
+      client.response_rate >= 50 && client.payment_rate >= 50
+    )
   );
 
   return (
