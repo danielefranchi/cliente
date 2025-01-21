@@ -36,12 +36,21 @@ export const RatingSteps = ({
     setStep
   });
 
-  const steps = {
-    0: <NameStep name={name} setName={setName} />,
-    1: <ResponseStep responded={responded} onResponse={handleResponseSelection} />,
-    2: responded ? <PaymentStep paid={paid} onPayment={handlePaymentSelection} /> : null,
-    3: <ConfirmationStep confirmed={confirmed} onConfirm={setConfirmed} />
+  const getCurrentStep = () => {
+    switch (step) {
+      case 0:
+        return <NameStep name={name} setName={setName} />;
+      case 1:
+        return <ResponseStep responded={responded} onResponse={handleResponseSelection} />;
+      case 2:
+        // Only show payment step if they responded
+        return responded ? <PaymentStep paid={paid} onPayment={handlePaymentSelection} /> : null;
+      case 3:
+        return <ConfirmationStep confirmed={confirmed} onConfirm={setConfirmed} />;
+      default:
+        return null;
+    }
   };
 
-  return steps[step as keyof typeof steps] || null;
+  return getCurrentStep();
 };

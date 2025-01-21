@@ -11,11 +11,11 @@ export const useRatingFlow = ({
 }: UseRatingFlowProps) => {
   const handleResponseSelection = (hasResponded: boolean) => {
     setResponded(hasResponded);
+    // If they didn't respond, skip the payment step and go directly to confirmation
+    setStep(hasResponded ? 2 : 3);
+    // If they didn't respond, set paid to null
     if (!hasResponded) {
-      // If they didn't respond, skip the payment step
-      setStep(3);
-    } else {
-      setStep(2);
+      setPaid(null);
     }
   };
 
