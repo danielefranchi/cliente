@@ -62,7 +62,7 @@ export const RatingSteps = ({
             <Button
               onClick={() => {
                 setResponded(false);
-                setStep(3);
+                setStep(2); // Changed from 3 to 2 to always show payment step
               }}
               className={cn(
                 "flex-col h-auto py-4 px-8 border border-gray-200 text-black transition-colors",
@@ -94,7 +94,10 @@ export const RatingSteps = ({
           <h2 className="text-xl font-semibold">Sei stato pagato?</h2>
           <div className="flex justify-center gap-4">
             <Button
-              onClick={() => setPaid('no')}
+              onClick={() => {
+                setPaid('no');
+                setStep(3);
+              }}
               className={cn(
                 "flex-col h-auto py-4 px-8 border border-gray-200 text-black transition-colors",
                 paid === 'no' ? "bg-red-100 hover:bg-gray-100 hover:text-black" : "bg-white hover:bg-red-50"
@@ -104,7 +107,10 @@ export const RatingSteps = ({
               <span>No</span>
             </Button>
             <Button
-              onClick={() => setPaid('late')}
+              onClick={() => {
+                setPaid('late');
+                setStep(3);
+              }}
               className={cn(
                 "flex-col h-auto py-4 px-8 border border-gray-200 text-black transition-colors",
                 paid === 'late' ? "bg-yellow-100 hover:bg-gray-100 hover:text-black" : "bg-white hover:bg-yellow-50"
@@ -114,7 +120,10 @@ export const RatingSteps = ({
               <span>Oltre 30 giorni</span>
             </Button>
             <Button
-              onClick={() => setPaid('yes')}
+              onClick={() => {
+                setPaid('yes');
+                setStep(3);
+              }}
               className={cn(
                 "flex-col h-auto py-4 px-8 border border-gray-200 text-black transition-colors",
                 paid === 'yes' ? "bg-green-100 hover:bg-gray-100 hover:text-black" : "bg-white hover:bg-green-50"
