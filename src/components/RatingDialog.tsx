@@ -6,6 +6,7 @@ import { RatingSteps } from './RatingSteps';
 import { saveRating } from '@/utils/ratingUtils';
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { useRatingValidation } from '@/hooks/useRatingValidation';
 
 interface RatingDialogProps {
   open: boolean;
@@ -28,6 +29,14 @@ export const RatingDialog = ({
   const [paid, setPaid] = useState<'yes' | 'no' | 'late' | null>(null);
   const [confirmed, setConfirmed] = useState(false);
   const { toast } = useToast();
+
+  const { canProceed } = useRatingValidation({
+    step,
+    name,
+    responded,
+    paid,
+    confirmed
+  });
 
   useEffect(() => {
     if (open) {
@@ -80,21 +89,6 @@ export const RatingDialog = ({
         description: error.message || "Si è verificato un errore durante il salvataggio.",
         variant: "destructive"
       });
-    }
-  };
-
-  const canProceed = () => {
-    switch (step) {
-      case 0:
-        return name.length > 0 && name.length <= 32;
-      case 1:
-        return responded !== null;
-      case 2:
-        return responded === false || paid !== null;
-      case 3:
-        return confirmed;
-      default:
-        return false;
     }
   };
 

@@ -3,6 +3,7 @@ import { NameStep } from './rating-steps/NameStep';
 import { ResponseStep } from './rating-steps/ResponseStep';
 import { PaymentStep } from './rating-steps/PaymentStep';
 import { ConfirmationStep } from './rating-steps/ConfirmationStep';
+import { useRatingFlow } from '@/hooks/useRatingFlow';
 
 interface RatingStepsProps {
   step: number;
@@ -29,31 +30,18 @@ export const RatingSteps = ({
   setConfirmed,
   setStep
 }: RatingStepsProps) => {
-  const handleResponseSelection = (hasResponded: boolean) => {
-    setResponded(hasResponded);
-    if (!hasResponded) {
-      // If they didn't respond, skip the payment step
-      setStep(3);
-    } else {
-      setStep(2);
-    }
+  const { handleResponseSelection, handlePaymentSelection } = useRatingFlow({
+    setResponded,
+    setPaid,
+    setStep
+  });
+
+  const steps = {
+    0: <NameStep name={name} setName={setName} />,
+    1: <ResponseStep responded={responded} onResponse={handleResponseSelection} />,
+    2: responded ? <PaymentStep paid={paid} onPayment={handlePaymentSelection} /> : null,
+    3: <ConfirmationStep confirmed={confirmed} onConfirm={setConfirmed} />
   };
 
-  const handlePaymentSelection = (paymentStatus: 'yes' | 'no' | 'late') => {
-    setPaid(paymentStatus);
-    setStep(3);
-  };
-
-  switch (step) {
-    case 0:
-      return <NameStep name={name} setName={setName} />;
-    case 1:
-      return <ResponseStep responded={responded} onResponse={handleResponseSelection} />;
-    case 2:
-      return responded ? <PaymentStep paid={paid} onPayment={handlePaymentSelection} /> : null;
-    case 3:
-      return <ConfirmationStep confirmed={confirmed} onConfirm={setConfirmed} />;
-    default:
-      return null;
-  }
+  return steps[step as keyof typeof steps] || null;
 };
