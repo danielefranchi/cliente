@@ -29,6 +29,8 @@ const Index = () => {
         ratings: client.total_ratings || 0,
         responseRate: client.response_rate || 0,
         paymentRate: client.payment_rate || 0,
+        // Add the responded property based on response_rate
+        responded: (client.response_rate || 0) > 0
       }));
     }
   });
@@ -44,11 +46,11 @@ const Index = () => {
   };
 
   const filteredClients = clientsData.filter(client => 
-    client.name.toLowerCase().includes(searchQuery.toLowerCase())
+    client.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const sortByRatings = (clients: any[]) => {
-    return [...clients].sort((a, b) => b.ratings - a.ratings);
+    return [...clients].sort((a, b) => (b.ratings || 0) - (a.ratings || 0));
   };
 
   const badClients = sortByRatings(
