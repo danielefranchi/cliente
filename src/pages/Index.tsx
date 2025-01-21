@@ -25,12 +25,10 @@ const Index = () => {
       if (error) throw error;
 
       return clients.map(client => ({
-        id: client.id || '',
-        name: client.name || '',
+        ...client,
         ratings: client.total_ratings || 0,
         responseRate: client.response_rate || 0,
         paymentRate: client.payment_rate || 0,
-        image_url: client.image_url
       }));
     }
   });
@@ -55,18 +53,18 @@ const Index = () => {
 
   const badClients = sortByRatings(
     clientsData.filter(client => 
-      client.responseRate < 50 || client.paymentRate < 50
+      client.response_rate < 50 || client.payment_rate < 50
     )
   ).sort((a, b) => {
     // Prioritize clients with both bad results
-    const aBothBad = (a.responseRate < 50 && a.paymentRate < 50) ? 1 : 0;
-    const bBothBad = (b.responseRate < 50 && b.paymentRate < 50) ? 1 : 0;
+    const aBothBad = (a.response_rate < 50 && a.payment_rate < 50) ? 1 : 0;
+    const bBothBad = (b.response_rate < 50 && b.payment_rate < 50) ? 1 : 0;
     return bBothBad - aBothBad;
   });
 
   const goodClients = sortByRatings(
     clientsData.filter(client => 
-      client.responseRate >= 50 && client.paymentRate >= 50
+      client.response_rate >= 50 && client.payment_rate >= 50
     )
   );
 

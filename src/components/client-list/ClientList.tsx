@@ -8,6 +8,7 @@ interface Client {
   responseRate: number;
   paymentRate: number;
   averageRating?: number;
+  responded: boolean;
   image_url?: string;
 }
 
@@ -38,7 +39,7 @@ export const ClientList = ({ title, emoji, clients, onRate }: ClientListProps) =
             paymentRate={client.paymentRate || 10}
             averageRating={client.averageRating}
             onRate={() => onRate(client.name)}
-            showPayment={client.responseRate > 0}
+            showPayment={client.responded}
             imageUrl={client.image_url}
           />
         ))}
