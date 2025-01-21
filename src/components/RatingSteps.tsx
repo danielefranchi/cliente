@@ -28,6 +28,17 @@ export const RatingSteps = ({
   setConfirmed,
   setStep
 }: RatingStepsProps) => {
+  const handleResponseSelection = (hasResponded: boolean) => {
+    setResponded(hasResponded);
+    // Always move to payment step regardless of response
+    setStep(2);
+  };
+
+  const handlePaymentSelection = (paymentStatus: 'yes' | 'no' | 'late') => {
+    setPaid(paymentStatus);
+    setStep(3);
+  };
+
   switch (step) {
     case 0:
       return (
@@ -60,10 +71,7 @@ export const RatingSteps = ({
           </h2>
           <div className="flex justify-center gap-8">
             <Button
-              onClick={() => {
-                setResponded(false);
-                setStep(2); // Changed from 3 to 2 to always show payment step
-              }}
+              onClick={() => handleResponseSelection(false)}
               className={cn(
                 "flex-col h-auto py-4 px-8 border border-gray-200 text-black transition-colors",
                 responded === false ? "bg-red-100 hover:bg-gray-100 hover:text-black" : "bg-white hover:bg-red-50"
@@ -73,10 +81,7 @@ export const RatingSteps = ({
               <span>No</span>
             </Button>
             <Button
-              onClick={() => {
-                setResponded(true);
-                setStep(2);
-              }}
+              onClick={() => handleResponseSelection(true)}
               className={cn(
                 "flex-col h-auto py-4 px-8 border border-gray-200 text-black transition-colors",
                 responded === true ? "bg-green-100 hover:bg-gray-100 hover:text-black" : "bg-white hover:bg-green-50"
@@ -94,10 +99,7 @@ export const RatingSteps = ({
           <h2 className="text-xl font-semibold">Sei stato pagato?</h2>
           <div className="flex justify-center gap-4">
             <Button
-              onClick={() => {
-                setPaid('no');
-                setStep(3);
-              }}
+              onClick={() => handlePaymentSelection('no')}
               className={cn(
                 "flex-col h-auto py-4 px-8 border border-gray-200 text-black transition-colors",
                 paid === 'no' ? "bg-red-100 hover:bg-gray-100 hover:text-black" : "bg-white hover:bg-red-50"
@@ -107,10 +109,7 @@ export const RatingSteps = ({
               <span>No</span>
             </Button>
             <Button
-              onClick={() => {
-                setPaid('late');
-                setStep(3);
-              }}
+              onClick={() => handlePaymentSelection('late')}
               className={cn(
                 "flex-col h-auto py-4 px-8 border border-gray-200 text-black transition-colors",
                 paid === 'late' ? "bg-yellow-100 hover:bg-gray-100 hover:text-black" : "bg-white hover:bg-yellow-50"
@@ -120,10 +119,7 @@ export const RatingSteps = ({
               <span>Oltre 30 giorni</span>
             </Button>
             <Button
-              onClick={() => {
-                setPaid('yes');
-                setStep(3);
-              }}
+              onClick={() => handlePaymentSelection('yes')}
               className={cn(
                 "flex-col h-auto py-4 px-8 border border-gray-200 text-black transition-colors",
                 paid === 'yes' ? "bg-green-100 hover:bg-gray-100 hover:text-black" : "bg-white hover:bg-green-50"
