@@ -1,7 +1,8 @@
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { cn } from '@/lib/utils';
+import { NameStep } from './rating-steps/NameStep';
+import { ResponseStep } from './rating-steps/ResponseStep';
+import { PaymentStep } from './rating-steps/PaymentStep';
+import { ConfirmationStep } from './rating-steps/ConfirmationStep';
 
 interface RatingStepsProps {
   step: number;
@@ -30,7 +31,6 @@ export const RatingSteps = ({
 }: RatingStepsProps) => {
   const handleResponseSelection = (hasResponded: boolean) => {
     setResponded(hasResponded);
-    // Always move to payment step regardless of response
     setStep(2);
   };
 
@@ -41,115 +41,13 @@ export const RatingSteps = ({
 
   switch (step) {
     case 0:
-      return (
-        <div className="text-center space-y-6">
-          <h2 className="text-xl font-semibold">Aggiungi cliente</h2>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => {
-              if (e.target.value.length <= 32) {
-                setName(e.target.value);
-              }
-            }}
-            placeholder="Nome azienda o progetto"
-            className="w-full p-2 border rounded"
-            maxLength={32}
-          />
-          {name.length > 14 && (
-            <p className="text-sm text-gray-500">
-              {32 - name.length} caratteri rimanenti
-            </p>
-          )}
-        </div>
-      );
+      return <NameStep name={name} setName={setName} />;
     case 1:
-      return (
-        <div className="text-center space-y-6">
-          <h2 className="text-xl font-semibold">
-            Ha risposto al tuo preventivo? <span className="text-sm text-gray-500 ml-1">(entro 7 giorni)</span>
-          </h2>
-          <div className="flex justify-center gap-8">
-            <Button
-              onClick={() => handleResponseSelection(false)}
-              className={cn(
-                "flex-col h-auto py-4 px-8 border border-gray-200 text-black transition-colors",
-                responded === false ? "bg-red-100 hover:bg-gray-100 hover:text-black" : "bg-white hover:bg-red-50"
-              )}
-            >
-              <span className="text-2xl mb-2">👻</span>
-              <span>No</span>
-            </Button>
-            <Button
-              onClick={() => handleResponseSelection(true)}
-              className={cn(
-                "flex-col h-auto py-4 px-8 border border-gray-200 text-black transition-colors",
-                responded === true ? "bg-green-100 hover:bg-gray-100 hover:text-black" : "bg-white hover:bg-green-50"
-              )}
-            >
-              <span className="text-2xl mb-2">🥳</span>
-              <span>Si</span>
-            </Button>
-          </div>
-        </div>
-      );
+      return <ResponseStep responded={responded} onResponse={handleResponseSelection} />;
     case 2:
-      return (
-        <div className="text-center space-y-6">
-          <h2 className="text-xl font-semibold">Sei stato pagato?</h2>
-          <div className="flex justify-center gap-4">
-            <Button
-              onClick={() => handlePaymentSelection('no')}
-              className={cn(
-                "flex-col h-auto py-4 px-8 border border-gray-200 text-black transition-colors",
-                paid === 'no' ? "bg-red-100 hover:bg-gray-100 hover:text-black" : "bg-white hover:bg-red-50"
-              )}
-            >
-              <span className="text-2xl mb-2">😈</span>
-              <span>No</span>
-            </Button>
-            <Button
-              onClick={() => handlePaymentSelection('late')}
-              className={cn(
-                "flex-col h-auto py-4 px-8 border border-gray-200 text-black transition-colors",
-                paid === 'late' ? "bg-yellow-100 hover:bg-gray-100 hover:text-black" : "bg-white hover:bg-yellow-50"
-              )}
-            >
-              <span className="text-2xl mb-2">🐌</span>
-              <span>Oltre 30 giorni</span>
-            </Button>
-            <Button
-              onClick={() => handlePaymentSelection('yes')}
-              className={cn(
-                "flex-col h-auto py-4 px-8 border border-gray-200 text-black transition-colors",
-                paid === 'yes' ? "bg-green-100 hover:bg-gray-100 hover:text-black" : "bg-white hover:bg-green-50"
-              )}
-            >
-              <span className="text-2xl mb-2">🤑</span>
-              <span>Si</span>
-            </Button>
-          </div>
-        </div>
-      );
+      return <PaymentStep paid={paid} onPayment={handlePaymentSelection} />;
     case 3:
-      return (
-        <div className="text-center space-y-6">
-          <h2 className="text-xl font-semibold">Tutto vero?</h2>
-          <div className="flex items-start space-x-2">
-            <Checkbox
-              id="terms"
-              checked={confirmed}
-              onCheckedChange={(checked) => setConfirmed(checked as boolean)}
-            />
-            <label
-              htmlFor="terms"
-              className="text-sm text-left"
-            >
-              Dichiaro che la mia recensione si basa su un'esperienza reale e che le informazioni fornite sono veritiere.
-            </label>
-          </div>
-        </div>
-      );
+      return <ConfirmationStep confirmed={confirmed} onConfirm={setConfirmed} />;
     default:
       return null;
   }
