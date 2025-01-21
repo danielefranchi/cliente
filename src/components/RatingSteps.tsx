@@ -31,7 +31,12 @@ export const RatingSteps = ({
 }: RatingStepsProps) => {
   const handleResponseSelection = (hasResponded: boolean) => {
     setResponded(hasResponded);
-    setStep(2);
+    if (!hasResponded) {
+      // If they didn't respond, skip the payment step
+      setStep(3);
+    } else {
+      setStep(2);
+    }
   };
 
   const handlePaymentSelection = (paymentStatus: 'yes' | 'no' | 'late') => {
@@ -45,7 +50,7 @@ export const RatingSteps = ({
     case 1:
       return <ResponseStep responded={responded} onResponse={handleResponseSelection} />;
     case 2:
-      return <PaymentStep paid={paid} onPayment={handlePaymentSelection} />;
+      return responded ? <PaymentStep paid={paid} onPayment={handlePaymentSelection} /> : null;
     case 3:
       return <ConfirmationStep confirmed={confirmed} onConfirm={setConfirmed} />;
     default:

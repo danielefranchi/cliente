@@ -90,10 +90,9 @@ export const RatingDialog = ({
       case 1:
         return responded !== null;
       case 2:
-        return paid !== null;
+        return responded === false || paid !== null;
       case 3:
-        // If responded is false, we don't need to check paid
-        return responded === false ? confirmed : (paid !== null && confirmed);
+        return confirmed;
       default:
         return false;
     }
