@@ -8,17 +8,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { SearchBar } from '@/components/search/SearchBar';
 import { NoResults } from '@/components/search/NoResults';
 import { ClientList } from '@/components/client-list/ClientList';
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedClientName, setSelectedClientName] = useState('');
 
-  const { data: clientsData = [], refetch, isError } = useQuery({
+  const { data: clientsData = [], refetch, isError, error } = useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
-      // First query the clients table
+      console.log('Fetching clients data...');
       const { data: clients, error } = await supabase
         .from('clients')
         .select(`
@@ -33,9 +35,16 @@ const Index = () => {
         `);
       
       if (error) {
-        console.error('Error fetching clients:', error);
+        console.error('Supabase error fetching clients:', error);
+        toast({
+          variant: "destructive",
+          title: "Error fetching data",
+          description: "Please try again later.",
+        });
         throw error;
       }
+
+      console.log('Received clients data:', clients);
 
       // Transform the data to match the expected format
       return clients.map(client => {
@@ -55,15 +64,22 @@ const Index = () => {
           responded: responseRate > 0
         };
       });
-    }
+    },
+    retry: 1
   });
 
   const handleRatingSuccess = async () => {
+    console.log('Rating success, refetching data...');
     await refetch();
     setShowRatingDialog(false);
+    toast({
+      title: "Valutazione salvata",
+      description: "Grazie per il tuo contributo!",
+    });
   };
 
   const handleRate = (clientName: string = '') => {
+    console.log('Opening rating dialog for:', clientName);
     setSelectedClientName(clientName);
     setShowRatingDialog(true);
   };
@@ -81,7 +97,6 @@ const Index = () => {
       client.response_rate < 50 || client.payment_rate < 50
     )
   ).sort((a, b) => {
-    // Prioritize clients with both bad results
     const aBothBad = (a.response_rate < 50 && a.payment_rate < 50) ? 1 : 0;
     const bBothBad = (b.response_rate < 50 && b.payment_rate < 50) ? 1 : 0;
     return bBothBad - aBothBad;
@@ -94,7 +109,12 @@ const Index = () => {
   );
 
   if (isError) {
-    console.error('Error loading clients data');
+    console.error('Error in query:', error);
+    toast({
+      variant: "destructive",
+      title: "Error loading data",
+      description: "Please refresh the page to try again.",
+    });
   }
 
   return (

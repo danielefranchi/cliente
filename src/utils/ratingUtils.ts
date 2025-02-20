@@ -34,13 +34,12 @@ export const saveRating = async (
   responded: boolean | null, 
   paid: 'yes' | 'no' | 'late' | null
 ) => {
-  console.log('Saving rating for:', { name, responded, paid });
+  console.log('Starting saveRating for:', { name, responded, paid });
   
   if (responded === null) {
     throw new Error('Missing required rating data');
   }
 
-  // If responded is false, we don't need to validate paid
   if (responded === true && paid === null) {
     throw new Error('Missing required rating data');
   }
