@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ClientCard } from '@/components/ClientCard';
 
@@ -5,8 +6,8 @@ interface Client {
   id: string;
   name: string;
   ratings: number;
-  responseRate: number;
-  paymentRate: number;
+  response_rate: number;
+  payment_rate: number;
   averageRating?: number;
   responded: boolean;
   image_url?: string;
@@ -35,8 +36,8 @@ export const ClientList = ({ title, emoji, clients, onRate }: ClientListProps) =
             key={client.id}
             name={client.name}
             ratings={client.ratings}
-            responseRate={client.responseRate || 10}
-            paymentRate={client.paymentRate || 10}
+            responseRate={client.response_rate}
+            paymentRate={client.payment_rate}
             averageRating={client.averageRating}
             onRate={() => onRate(client.name)}
             showPayment={client.responded}
