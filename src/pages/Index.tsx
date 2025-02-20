@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Separator } from "@/components/ui/separator";
@@ -14,24 +15,46 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedClientName, setSelectedClientName] = useState('');
 
-  const { data: clientsData = [], refetch } = useQuery({
+  const { data: clientsData = [], refetch, isError } = useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
+      // First query the clients table
       const { data: clients, error } = await supabase
-        .from('client_stats')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .from('clients')
+        .select(`
+          id,
+          name,
+          image_url,
+          created_at,
+          ratings (
+            responded,
+            paid
+          )
+        `);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching clients:', error);
+        throw error;
+      }
 
-      return clients.map(client => ({
-        ...client,
-        ratings: client.total_ratings || 0,
-        responseRate: client.response_rate || 0,
-        paymentRate: client.payment_rate || 0,
-        // Add the responded property based on response_rate
-        responded: (client.response_rate || 0) > 0
-      }));
+      // Transform the data to match the expected format
+      return clients.map(client => {
+        const totalRatings = client.ratings?.length || 0;
+        const responseRate = client.ratings?.filter(r => r.responded).length / totalRatings * 100 || 0;
+        const paidRatings = client.ratings?.filter(r => r.responded && r.paid === 'yes').length || 0;
+        const paymentRate = totalRatings > 0 ? (paidRatings / totalRatings * 100) : 0;
+
+        return {
+          id: client.id,
+          name: client.name,
+          image_url: client.image_url,
+          created_at: client.created_at,
+          ratings: totalRatings,
+          response_rate: responseRate,
+          payment_rate: paymentRate,
+          responded: responseRate > 0
+        };
+      });
     }
   });
 
@@ -69,6 +92,10 @@ const Index = () => {
       client.response_rate >= 50 && client.payment_rate >= 50
     )
   );
+
+  if (isError) {
+    console.error('Error loading clients data');
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
