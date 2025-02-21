@@ -17,7 +17,7 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedClientName, setSelectedClientName] = useState('');
 
-  const { data: clientsData = [], refetch, isError, error } = useQuery({
+  const { data: clientsData, isLoading, isError } = useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
       console.log('Fetching clients data...');
@@ -36,27 +36,27 @@ const Index = () => {
       
       if (error) {
         console.error('Supabase error fetching clients:', error);
-        toast({
-          variant: "destructive",
-          title: "Error fetching data",
-          description: "Please try again later.",
-        });
         throw error;
+      }
+
+      if (!clients) {
+        return [];
       }
 
       console.log('Received clients data:', clients);
 
-      // Transform the data to match the expected format
       return clients.map(client => {
         const totalRatings = client.ratings?.length || 0;
-        const responseRate = client.ratings?.filter(r => r.responded).length / totalRatings * 100 || 0;
+        const responseRate = totalRatings > 0 
+          ? (client.ratings?.filter(r => r.responded).length / totalRatings * 100) || 0
+          : 0;
         const paidRatings = client.ratings?.filter(r => r.responded && r.paid === 'yes').length || 0;
         const paymentRate = totalRatings > 0 ? (paidRatings / totalRatings * 100) : 0;
 
         return {
           id: client.id,
-          name: client.name,
-          image_url: client.image_url,
+          name: client.name || '',
+          image_url: client.image_url || '',
           created_at: client.created_at,
           ratings: totalRatings,
           response_rate: responseRate,
@@ -68,9 +68,7 @@ const Index = () => {
     retry: 1
   });
 
-  const handleRatingSuccess = async () => {
-    console.log('Rating success, refetching data...');
-    await refetch();
+  const handleRatingSuccess = () => {
     setShowRatingDialog(false);
     toast({
       title: "Valutazione salvata",
@@ -84,8 +82,8 @@ const Index = () => {
     setShowRatingDialog(true);
   };
 
-  const filteredClients = clientsData.filter(client => 
-    client.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredClients = (clientsData || []).filter(client => 
+    client.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const sortByRatings = (clients: any[]) => {
@@ -93,7 +91,7 @@ const Index = () => {
   };
 
   const badClients = sortByRatings(
-    clientsData.filter(client => 
+    (clientsData || []).filter(client => 
       client.response_rate < 50 || client.payment_rate < 50
     )
   ).sort((a, b) => {
@@ -103,18 +101,31 @@ const Index = () => {
   });
 
   const goodClients = sortByRatings(
-    clientsData.filter(client => 
+    (clientsData || []).filter(client => 
       client.response_rate >= 50 && client.payment_rate >= 50
     )
   );
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Caricamento in corso...</h2>
+          <p className="text-gray-600">Stiamo recuperando i dati dei clienti.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (isError) {
-    console.error('Error in query:', error);
-    toast({
-      variant: "destructive",
-      title: "Error loading data",
-      description: "Please refresh the page to try again.",
-    });
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Errore di caricamento</h2>
+          <p className="text-gray-600">Si è verificato un errore nel caricamento dei dati.</p>
+        </div>
+      </div>
+    );
   }
 
   return (
