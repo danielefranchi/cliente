@@ -17,7 +17,7 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedClientName, setSelectedClientName] = useState('');
 
-  const { data: clientsData = [], isLoading, isError } = useQuery({
+  const { data: clientsData = [], refetch, isError, error } = useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
       console.log('Fetching clients data...');
@@ -36,11 +36,17 @@ const Index = () => {
       
       if (error) {
         console.error('Supabase error fetching clients:', error);
+        toast({
+          variant: "destructive",
+          title: "Error fetching data",
+          description: "Please try again later.",
+        });
         throw error;
       }
 
       console.log('Received clients data:', clients);
 
+      // Transform the data to match the expected format
       return clients.map(client => {
         const totalRatings = client.ratings?.length || 0;
         const responseRate = client.ratings?.filter(r => r.responded).length / totalRatings * 100 || 0;
@@ -59,13 +65,12 @@ const Index = () => {
         };
       });
     },
-    retry: 1,
-    gcTime: 0, // Disable caching to prevent stale data
-    staleTime: 0 // Always fetch fresh data
+    retry: 1
   });
 
   const handleRatingSuccess = async () => {
-    console.log('Rating success, closing dialog...');
+    console.log('Rating success, refetching data...');
+    await refetch();
     setShowRatingDialog(false);
     toast({
       title: "Valutazione salvata",
@@ -79,7 +84,7 @@ const Index = () => {
     setShowRatingDialog(true);
   };
 
-  const filteredClients = (clientsData || []).filter(client => 
+  const filteredClients = clientsData.filter(client => 
     client.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -104,30 +109,12 @@ const Index = () => {
   );
 
   if (isError) {
+    console.error('Error in query:', error);
     toast({
       variant: "destructive",
-      title: "Errore nel caricamento dei dati",
-      description: "Riprova più tardi.",
+      title: "Error loading data",
+      description: "Please refresh the page to try again.",
     });
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">Errore di caricamento</h2>
-          <p className="text-gray-600">Si è verificato un errore nel caricamento dei dati.</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">Caricamento in corso...</h2>
-          <p className="text-gray-600">Stiamo recuperando i dati dei clienti.</p>
-        </div>
-      </div>
-    );
   }
 
   return (

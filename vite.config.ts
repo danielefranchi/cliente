@@ -9,17 +9,6 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
-  build: {
-    sourcemap: true,
-    minify: mode === 'production',
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'react': ['react', 'react-dom'],
-        },
-      },
-    },
-  },
   plugins: [
     react(),
     mode === 'development' && componentTagger(),
@@ -27,6 +16,16 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  build: {
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react': ['react', 'react-dom'],
+        },
+      },
     },
   },
 }));
