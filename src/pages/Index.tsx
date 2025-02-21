@@ -21,51 +21,63 @@ const Index = () => {
     queryKey: ['clients'],
     queryFn: async () => {
       console.log('Fetching clients data...');
-      const { data: clients, error } = await supabase
-        .from('clients')
-        .select(`
-          id,
-          name,
-          image_url,
-          created_at,
-          ratings (
-            responded,
-            paid
-          )
-        `);
-      
-      if (error) {
-        console.error('Supabase error fetching clients:', error);
+      try {
+        const { data: clients, error } = await supabase
+          .from('clients')
+          .select(`
+            id,
+            name,
+            image_url,
+            created_at,
+            ratings (
+              responded,
+              paid
+            )
+          `);
+        
+        if (error) {
+          console.error('Supabase error fetching clients:', error);
+          throw error;
+        }
+
+        if (!clients) {
+          return [];
+        }
+
+        console.log('Received clients data:', clients);
+
+        return clients.map(client => {
+          const totalRatings = client.ratings?.length || 0;
+          const responseRate = totalRatings > 0 
+            ? (client.ratings?.filter(r => r.responded).length / totalRatings * 100) || 0
+            : 0;
+          const paidRatings = client.ratings?.filter(r => r.responded && r.paid === 'yes').length || 0;
+          const paymentRate = totalRatings > 0 ? (paidRatings / totalRatings * 100) : 0;
+
+          return {
+            id: client.id,
+            name: client.name,
+            image_url: client.image_url,
+            created_at: client.created_at,
+            ratings: totalRatings,
+            response_rate: responseRate,
+            payment_rate: paymentRate,
+            responded: responseRate > 0
+          };
+        });
+      } catch (error) {
+        console.error('Error fetching clients:', error);
         throw error;
       }
-
-      console.log('Received clients data:', clients);
-
-      return clients.map(client => {
-        const totalRatings = client.ratings?.length || 0;
-        const responseRate = client.ratings?.filter(r => r.responded).length / totalRatings * 100 || 0;
-        const paidRatings = client.ratings?.filter(r => r.responded && r.paid === 'yes').length || 0;
-        const paymentRate = totalRatings > 0 ? (paidRatings / totalRatings * 100) : 0;
-
-        return {
-          id: client.id,
-          name: client.name,
-          image_url: client.image_url,
-          created_at: client.created_at,
-          ratings: totalRatings,
-          response_rate: responseRate,
-          payment_rate: paymentRate,
-          responded: responseRate > 0
-        };
-      });
     },
-    retry: 1,
-    gcTime: 0, // Disable caching to prevent stale data
-    staleTime: 0 // Always fetch fresh data
+    retry: false,
+    gcTime: 0,
+    staleTime: 0,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
-  const handleRatingSuccess = async () => {
-    console.log('Rating success, closing dialog...');
+  const handleRatingSuccess = () => {
     setShowRatingDialog(false);
     toast({
       title: "Valutazione salvata",
@@ -79,36 +91,37 @@ const Index = () => {
     setShowRatingDialog(true);
   };
 
-  const filteredClients = (clientsData || []).filter(client => 
-    client.name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredClients = React.useMemo(() => {
+    return (clientsData || []).filter(client => 
+      client.name?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [clientsData, searchQuery]);
 
-  const sortByRatings = (clients: any[]) => {
+  const sortByRatings = React.useCallback((clients: any[]) => {
     return [...clients].sort((a, b) => (b.ratings || 0) - (a.ratings || 0));
-  };
+  }, []);
 
-  const badClients = sortByRatings(
-    clientsData.filter(client => 
-      client.response_rate < 50 || client.payment_rate < 50
-    )
-  ).sort((a, b) => {
-    const aBothBad = (a.response_rate < 50 && a.payment_rate < 50) ? 1 : 0;
-    const bBothBad = (b.response_rate < 50 && b.payment_rate < 50) ? 1 : 0;
-    return bBothBad - aBothBad;
-  });
+  const { badClients, goodClients } = React.useMemo(() => {
+    const bad = sortByRatings(
+      (clientsData || []).filter(client => 
+        client.response_rate < 50 || client.payment_rate < 50
+      )
+    ).sort((a, b) => {
+      const aBothBad = (a.response_rate < 50 && a.payment_rate < 50) ? 1 : 0;
+      const bBothBad = (b.response_rate < 50 && b.payment_rate < 50) ? 1 : 0;
+      return bBothBad - aBothBad;
+    });
 
-  const goodClients = sortByRatings(
-    clientsData.filter(client => 
-      client.response_rate >= 50 && client.payment_rate >= 50
-    )
-  );
+    const good = sortByRatings(
+      (clientsData || []).filter(client => 
+        client.response_rate >= 50 && client.payment_rate >= 50
+      )
+    );
+
+    return { badClients: bad, goodClients: good };
+  }, [clientsData, sortByRatings]);
 
   if (isError) {
-    toast({
-      variant: "destructive",
-      title: "Errore nel caricamento dei dati",
-      description: "Riprova più tardi.",
-    });
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
