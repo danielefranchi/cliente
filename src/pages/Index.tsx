@@ -17,55 +17,62 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedClientName, setSelectedClientName] = useState('');
 
-  const { data: clientsData, isLoading, isError } = useQuery({
+  const { data: clientsData = [], isLoading, error } = useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
       console.log('Fetching clients data...');
-      const { data: clients, error } = await supabase
-        .from('clients')
-        .select(`
-          id,
-          name,
-          image_url,
-          created_at,
-          ratings (
-            responded,
-            paid
-          )
-        `);
-      
-      if (error) {
-        console.error('Supabase error fetching clients:', error);
-        throw error;
+      try {
+        const { data: clients, error } = await supabase
+          .from('clients')
+          .select(`
+            id,
+            name,
+            image_url,
+            created_at,
+            ratings (
+              responded,
+              paid
+            )
+          `);
+        
+        if (error) {
+          console.error('Supabase error fetching clients:', error);
+          throw error;
+        }
+
+        if (!clients) {
+          return [];
+        }
+
+        console.log('Received clients data:', clients);
+
+        return clients.map(client => {
+          const totalRatings = client.ratings?.length || 0;
+          const responseRate = totalRatings > 0 
+            ? (client.ratings?.filter(r => r.responded).length / totalRatings * 100) || 0
+            : 0;
+          const paidRatings = client.ratings?.filter(r => r.responded && r.paid === 'yes').length || 0;
+          const paymentRate = totalRatings > 0 ? (paidRatings / totalRatings * 100) : 0;
+
+          return {
+            id: client.id,
+            name: client.name || '',
+            image_url: client.image_url || '',
+            created_at: client.created_at,
+            ratings: totalRatings,
+            response_rate: responseRate,
+            payment_rate: paymentRate,
+            responded: responseRate > 0
+          };
+        });
+      } catch (err) {
+        console.error('Error fetching clients:', err);
+        return []; // Return empty array instead of throwing
       }
-
-      if (!clients) {
-        return [];
-      }
-
-      console.log('Received clients data:', clients);
-
-      return clients.map(client => {
-        const totalRatings = client.ratings?.length || 0;
-        const responseRate = totalRatings > 0 
-          ? (client.ratings?.filter(r => r.responded).length / totalRatings * 100) || 0
-          : 0;
-        const paidRatings = client.ratings?.filter(r => r.responded && r.paid === 'yes').length || 0;
-        const paymentRate = totalRatings > 0 ? (paidRatings / totalRatings * 100) : 0;
-
-        return {
-          id: client.id,
-          name: client.name || '',
-          image_url: client.image_url || '',
-          created_at: client.created_at,
-          ratings: totalRatings,
-          response_rate: responseRate,
-          payment_rate: paymentRate,
-          responded: responseRate > 0
-        };
-      });
     },
-    retry: 1
+    retry: 3, // Increase retry attempts
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    initialData: [], // Provide initial data
   });
 
   const handleRatingSuccess = () => {
@@ -82,7 +89,7 @@ const Index = () => {
     setShowRatingDialog(true);
   };
 
-  const filteredClients = (clientsData || []).filter(client => 
+  const filteredClients = clientsData.filter(client => 
     client.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -91,7 +98,7 @@ const Index = () => {
   };
 
   const badClients = sortByRatings(
-    (clientsData || []).filter(client => 
+    clientsData.filter(client => 
       client.response_rate < 50 || client.payment_rate < 50
     )
   ).sort((a, b) => {
@@ -101,12 +108,13 @@ const Index = () => {
   });
 
   const goodClients = sortByRatings(
-    (clientsData || []).filter(client => 
+    clientsData.filter(client => 
       client.response_rate >= 50 && client.payment_rate >= 50
     )
   );
 
-  if (isLoading) {
+  // Show loading state only for the first load
+  if (isLoading && clientsData.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -117,15 +125,13 @@ const Index = () => {
     );
   }
 
-  if (isError) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">Errore di caricamento</h2>
-          <p className="text-gray-600">Si è verificato un errore nel caricamento dei dati.</p>
-        </div>
-      </div>
-    );
+  // If there's an error, show it in a toast but don't block the UI
+  if (error) {
+    toast({
+      variant: "destructive",
+      title: "Errore di connessione",
+      description: "Ci sono problemi di connessione al database. Riprova più tardi.",
+    });
   }
 
   return (
